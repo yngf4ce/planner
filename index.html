@@ -1442,11 +1442,13 @@ const Sync = {
     const m = await DB.get('meta', 'syncUser');
     if (m && m.value === this.userId) return;
     if (m && m.value !== this.userId) {           // на устройстве данные другого аккаунта — очищаем
-      for (const s of ['tasks','diary','photos','outbox']) await DB.clear(s);
-      await DB.del('meta', 'syncSeq'); S.tasks = []; S.diary = {}; photoCache.clear();
+      for (const s of ['tasks','diary','photos','outbox','goals','rules']) await DB.clear(s);
+      await DB.del('meta', 'syncSeq'); S.tasks = []; S.diary = {}; S.goals = []; S.rules = []; photoCache.clear();
     } else {
       for (const t of S.tasks) await queue('task', t.id, {...t, updatedAt: t.updatedAt || t.createdAt || Date.now()});
       for (const d of Object.values(S.diary)) await queue('diary', d.date, {...d, updatedAt: d.updatedAt || Date.now()});
+      for (const g of S.goals) await queue('goal', g.id, {...g, updatedAt: g.updatedAt || g.createdAt || Date.now()});
+      for (const r of S.rules) await queue('rule', r.id, {...r, updatedAt: r.updatedAt || r.createdAt || Date.now()});
       for (const p of await DB.all('photos')) await queue('photoUpload', p.id, null);
       if (S.settingsUpdatedAt) await queue('settings', 'settings', {value:S.settings, updatedAt:S.settingsUpdatedAt});
     }
@@ -1474,7 +1476,7 @@ const Sync = {
     try {
       const out = await DB.all('outbox');
       await this.pushPhotos(out.filter(o => o.kind === 'photoUpload' || o.kind === 'photoDelete'));
-      const recs = out.filter(o => o.kind === 'task' || o.kind === 'diary' || o.kind === 'settings');
+      const recs = out.filter(o => ['task','diary','settings','goal','rule'].includes(o.kind)).slice(0, 500);
       const sm = await DB.get('meta', 'syncSeq'); const since = sm ? sm.value : 0;
       const r = await fetch(`${API_BASE}/api/sync`, {method:'POST', headers:this.headers({'Content-Type':'application/json'}),
         body: JSON.stringify({since, changes: recs.map(o => ({kind:o.kind, id:o.id, updatedAt:o.updatedAt, deleted:!!o.deleted, data:o.data}))})});
@@ -1514,6 +1516,16 @@ const Sync = {
         if (local && (local.updatedAt || 0) >= c.updatedAt) continue;
         if (c.deleted) { if (local) { delete S.diary[c.id]; await DB.del('diary', c.id); changed = true; } }
         else { const e = {...c.data, updatedAt:c.updatedAt}; S.diary[c.id] = e; await DB.put('diary', e); changed = true; }
+      } else if (c.kind === 'goal' || c.kind === 'rule') {
+        const arr = c.kind === 'goal' ? 'goals' : 'rules';   // имя массива в S и хранилища в IndexedDB совпадают
+        const local = S[arr].find(x => x.id === c.id);
+        if (local && (local.updatedAt || 0) >= c.updatedAt) continue;
+        if (c.deleted) { if (local) { S[arr] = S[arr].filter(x => x.id !== c.id); await DB.del(arr, c.id); changed = true; } }
+        else {
+          const v = {...c.data, updatedAt:c.updatedAt};
+          if (local) S[arr][S[arr].indexOf(local)] = v; else S[arr].push(v);
+          await DB.put(arr, v); changed = true;
+        }
       } else if (c.kind === 'settings' && !c.deleted && c.data) {
         if ((S.settingsUpdatedAt || 0) >= c.updatedAt) continue;
         S.settings = {...S.settings, ...c.data.value}; S.settingsUpdatedAt = c.updatedAt;

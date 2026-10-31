@@ -65,7 +65,63 @@
 
 ---
 
-## 5. Supabase, Groq, Gemini — будет добавлено на этапах 3 и 6
+## 5. Сервер Supabase (этап 3)
 
-Секреты всегда вводятся только в панелях сервисов (Supabase → Edge Functions → Secrets),
-никогда — в код и не в чат. Список переменных — в `.env.example`.
+Что получится: задачи, цели, повторы, дневник и фото хранятся на сервере и синхронизируются между устройствами.
+Приложение по‑прежнему работает без интернета — изменения отправятся, когда связь появится.
+
+### 5.1. Аккаунт и проект
+1. Откройте https://supabase.com → **Start your project** → войдите через GitHub (аккаунт `yngf4ce`).
+2. **New project**:
+   - Organization — ваша (тариф **Free**);
+   - Name: `lockedlife`;
+   - Database Password: нажмите **Generate a password** и сохраните его в менеджер паролей (в чат не отправлять);
+   - Region: **Central EU (Frankfurt)** — ближе всего к вам;
+   - **Create new project** и подождите 1–2 минуты.
+3. Откройте **Project Settings → General** (или **Data API**) и найдите **Project URL** вида
+   `https://abcdefghijkl.supabase.co`. Этот адрес **не секретный** — его можно прислать Claude.
+
+### 5.2. Таблицы (SQL)
+1. Слева **SQL Editor** → **New query**.
+2. Откройте в GitHub файл `supabase/migrations/001_sync.sql` → кнопка **Raw** → выделите всё → скопируйте.
+3. Вставьте в SQL Editor → **Run**. Ожидаемый результат: `Success. No rows returned`.
+4. Проверка: слева **Table Editor** → появилась таблица `records`; **Storage** → бакет `photos` (Private).
+
+### 5.3. Секреты
+**Edge Functions → Secrets** (или **Project Settings → Edge Functions → Secrets**) → добавьте:
+
+| Name | Value |
+|---|---|
+| `TELEGRAM_BOT_TOKEN` | токен бота из @BotFather (`/mybots` → бот → **API Token**) |
+| `ALLOWED_TELEGRAM_IDS` | ваш Telegram ID (число от @userinfobot) |
+| `ALLOWED_ORIGINS` | `https://yngf4ce.github.io` |
+
+`SUPABASE_URL` и `SUPABASE_SERVICE_ROLE_KEY` добавлять не нужно — они уже есть внутри функций.
+
+### 5.4. Серверная функция `api`
+1. **Edge Functions** → **Deploy a new function** → **Via Editor**.
+2. Имя функции: `api` (строго так).
+3. Удалите пример кода, вставьте содержимое `supabase/functions/api/index.ts` (GitHub → файл → **Raw** → скопировать всё).
+4. **Deploy function**.
+5. В настройках функции (**Details / Settings**) **выключите «Enforce JWT verification» / «Verify JWT»** → Save.
+   Без этого Supabase отклонит запросы приложения (оно авторизуется подписью Telegram).
+6. Проверка: откройте в браузере `https://ВАШ_ID.supabase.co/functions/v1/api/health` →
+   должно быть `{"ok":true,"configured":true}`. Если `configured:false` — не задан `TELEGRAM_BOT_TOKEN`.
+
+### 5.5. Включение синхронизации в приложении
+Claude вписывает адрес `https://ВАШ_ID.supabase.co/functions/v1` в `index.html`
+(`<meta name="api-base" ...>`) и публикует. После этого: ⚙️ → «Синхронизация» должна показать «Включена · ЧЧ:ММ».
+
+### Частые ошибки
+| Симптом | Причина и решение |
+|---|---|
+| `/api/health` отвечает 401 «Missing authorization header» | не выключена проверка JWT (шаг 5.4.5) |
+| В приложении «Перезапустите приложение из Telegram» | неверный `TELEGRAM_BOT_TOKEN`, не тот ID в `ALLOWED_TELEGRAM_IDS`, или приложение открыто не через бота |
+| «Сервер недоступен» | функция не задеплоена, неверное имя (`api`), или неверный адрес в `api-base` |
+| Проект «Paused» | бесплатный проект засыпает после 7 дней без активности — Dashboard → **Restore project** |
+
+---
+
+## 6. Groq, Gemini, бот Noctis AI — будет добавлено на этапе 6
+
+Секреты всегда вводятся только в панелях сервисов, никогда — в код и не в чат. Список переменных — в `.env.example`.
