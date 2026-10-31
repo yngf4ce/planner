@@ -3,27 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#111318">
 <!-- Синхронизация. "off" — выключена, данные только на устройстве.
      Сервер из папки server/ сам включает синхронизацию, когда раздаёт эту страницу.
      Если страница лежит на GitHub Pages, а сервер отдельно — впишите его адрес, например https://planner.example.com -->
 <meta name="api-base" content="off">
-<title>Ежедневник</title>
+<title>LockedLife</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{
-  --bg:#f3f1ec; --surface:#fdfcf9; --surface2:#ecE9e2; --text:#2e2d2a; --text2:#5c5a55; --muted:#8f8b83;
-  --border:#e3dfd7; --accent:#2f8d5f; --accent-soft:#dcebe2; --star:#cf962f;
-  --done:#2f8d5f; --post:#5878c4; --miss:#cf6a4c; --planned:#c9c6bf;
-  --miss-soft:#f5e3dc; --post-soft:#e2e8f4;
-  --shadow:0 1px 2px rgba(40,35,25,.04),0 6px 20px rgba(40,35,25,.05); --r:16px;
+/* Midnight Blue — основная (тёмная) тема */
+:root,html[data-theme=dark]{
+  --bg:#111318; --surface:#1D2532; --surface2:#263042; --text:#F2F5FB; --text2:#C2C9D6; --muted:#929BAA;
+  --border:#2A3446; --accent:#80A7FF; --on-accent:#0D1422; --accent-soft:#22314D; --star:#E6B968;
+  --done:#65B99A; --post:#8C9BD9; --miss:#E07A6A; --planned:#3A4559;
+  --miss-soft:#3A2A2F; --post-soft:#27304A;
+  --bar-bg:rgba(17,19,24,.86); --backdrop:rgba(5,8,14,.62);
+  --shadow:inset 0 0 0 1px rgba(255,255,255,.035),0 6px 18px rgba(0,0,0,.22); --r:16px;
 }
-html[data-theme=dark]{
-  --bg:#2b2d31; --surface:#35383d; --surface2:#3f4248; --text:#ebe9e4; --text2:#c3c0b9; --muted:#9e9b94;
-  --border:#484b52; --accent:#4fa57a; --accent-soft:#3a4a42; --star:#e1b05a;
-  --done:#4fa57a; --post:#7590d8; --miss:#d6774f; --planned:#5a5e65;
-  --miss-soft:#4a3d39; --post-soft:#3c4352;
-  --shadow:0 1px 2px rgba(0,0,0,.12);
+/* светлая тема в той же гамме */
+html[data-theme=light]{
+  --bg:#F3F5F9; --surface:#FFFFFF; --surface2:#E8ECF3; --text:#151A23; --text2:#4A5263; --muted:#7D8698;
+  --border:#DDE2EB; --accent:#3D6FE0; --on-accent:#FFFFFF; --accent-soft:#DFE8FB; --star:#C9952F;
+  --done:#2F9C78; --post:#6475B8; --miss:#CF5F4C; --planned:#C5CCD8;
+  --miss-soft:#F6E1DC; --post-soft:#E3E7F5;
+  --bar-bg:rgba(255,255,255,.88); --backdrop:rgba(20,26,38,.35);
+  --shadow:0 1px 2px rgba(20,30,50,.05),0 6px 20px rgba(20,30,50,.06);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--text);
@@ -33,8 +38,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 input,textarea{font:inherit;color:inherit}
 svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #app{max-width:560px;margin:0 auto;padding:0 16px calc(90px + env(safe-area-inset-bottom))}
-.top{display:flex;align-items:center;justify-content:space-between;padding:12px 0 4px;position:sticky;top:0;background:var(--bg);z-index:5}
-.top-title{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 0 6px;position:sticky;top:0;background:var(--bg);z-index:5}
+.top-title{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:650}
+.top-title b{color:var(--accent);font-weight:650}
 .icon-btn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--muted);flex:none}
 .icon-btn:active{background:var(--surface2)}
 .h1{font-size:24px;font-weight:650;letter-spacing:-.015em}
@@ -45,10 +51,12 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .empty{color:var(--muted);text-align:center;padding:28px 10px;font-size:14px}
 
 /* tabbar */
-.tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:10;padding-bottom:env(safe-area-inset-bottom)}
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--bar-bg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--border);z-index:10;padding-bottom:env(safe-area-inset-bottom)}
 .tabbar-in{max-width:560px;margin:0 auto;display:flex}
 .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--muted);padding:9px 0 8px;font-weight:500}
+.tabbar button{transition:color .2s}
 .tabbar button.active{color:var(--accent)}
+.tabbar button.active svg.i{stroke-width:2.1}
 
 /* day */
 .day-head{display:flex;align-items:center;gap:6px;margin:4px 0 14px}
@@ -61,7 +69,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .quick-add{display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:var(--r);padding:4px 4px 4px 14px;box-shadow:var(--shadow)}
 .quick-add input{flex:1;border:0;outline:0;background:none;padding:10px 0;min-width:0}
 .quick-add input::placeholder{color:var(--muted)}
-.add-btn{width:38px;height:38px;border-radius:12px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}
+.add-btn{width:38px;height:38px;border-radius:12px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none}
 .chips-label{font-size:12px;color:var(--muted);margin:14px 2px 7px}
 .chips{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .chips::-webkit-scrollbar{display:none}
@@ -72,7 +80,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .task-list{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 .task{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border-radius:14px;padding:12px 10px 12px 12px;box-shadow:var(--shadow);cursor:pointer;transition:opacity .2s}
 .task.starred{box-shadow:inset 3px 0 0 var(--star),var(--shadow)}
-.check{width:24px;height:24px;border-radius:50%;border:1.8px solid var(--muted);display:grid;place-items:center;flex:none;margin-top:-1px;color:#fff;transition:all .15s}
+.check{width:24px;height:24px;border-radius:50%;border:1.8px solid var(--muted);display:grid;place-items:center;flex:none;margin-top:-1px;color:var(--bg);transition:all .15s}
 .check svg.i{width:14px;height:14px;stroke-width:3}
 .task.done .check{background:var(--done);border-color:var(--done)}
 .task.missed .check{border-color:var(--miss)}
@@ -106,7 +114,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .mm-wd{font-size:9px;color:var(--muted);text-align:center;padding-bottom:2px}
 .mm-d{position:relative;aspect-ratio:1;display:grid;place-items:center;font-size:10.5px;border-radius:6px;color:var(--text2)}
 .mm-d.has{background:var(--surface2);color:var(--text)}
-.mm-d.c-done{background:var(--done);color:#fff}
+.mm-d.c-done{background:var(--done);color:var(--bg)}
 .mm-d.c-part{background:var(--accent-soft);color:var(--text)}
 .mm-d.c-miss{background:var(--miss-soft);color:var(--miss)}
 .mm-d.today{box-shadow:inset 0 0 0 1.5px var(--text)}
@@ -125,7 +133,9 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .small-add{color:var(--accent);font-size:13px;font-weight:550;display:flex;align-items:center;gap:3px}
 .small-add svg.i{width:16px;height:16px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 16px;border-radius:13px;font-weight:580;font-size:15px}
-.btn.primary{background:var(--accent);color:#fff}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn:active,.add-btn:active{transform:scale(.97)}
+.btn,.add-btn{transition:transform .12s}
 .btn.ghost{background:var(--surface2)}
 .btn.danger{color:var(--miss)}
 .btn.wide{width:100%}
@@ -178,7 +188,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 
 /* sheet */
 .sheet-wrap{position:fixed;inset:0;z-index:50;pointer-events:none}
-.sheet-backdrop{position:absolute;inset:0;background:rgba(20,18,15,.35);opacity:0;transition:opacity .22s}
+.sheet-backdrop{position:absolute;inset:0;background:var(--backdrop);opacity:0;transition:opacity .22s}
 .sheet{position:absolute;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:var(--bg);border-radius:22px 22px 0 0;
   padding:8px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .26s cubic-bezier(.2,.8,.2,1);max-height:92vh;overflow-y:auto}
 .sheet::before{content:"";display:block;width:38px;height:4px;border-radius:4px;background:var(--border);margin:0 auto 12px}
@@ -209,6 +219,15 @@ textarea.field{resize:vertical;min-height:84px;line-height:1.5}
 .toggle{width:44px;height:26px;border-radius:26px;background:var(--surface2);position:relative;transition:background .2s;flex:none}
 .toggle::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
 .toggle.on{background:var(--accent)}
+/* «Ещё» */
+.more-list{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.more-item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--surface);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+.more-item:active{background:var(--surface2)}
+.more-ic{width:40px;height:40px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.more-item .t{flex:1;min-width:0}
+.more-item .t b{display:block;font-weight:600}
+.more-item .t .sub{display:block;margin-top:1px}
+.more-item>svg.i{color:var(--muted)}
 .toggle.on::after{transform:translateX(18px)}
 .note{font-size:12.5px;color:var(--muted);padding:0 4px;line-height:1.5}
 
@@ -225,7 +244,7 @@ textarea.field{resize:vertical;min-height:84px;line-height:1.5}
 <body>
 <div id="app">
   <header class="top">
-    <div class="top-title" id="topTitle">Ежедневник</div>
+    <div class="top-title" id="topTitle">LockedLife</div>
     <button class="icon-btn" data-act="settings" aria-label="Настройки"></button>
   </header>
   <main id="view"></main>
@@ -262,7 +281,8 @@ const P = {
   plus:'<path d="M12 5v14M5 12h14"/>',
   left:'<path d="M15 5l-7 7 7 7"/>', right:'<path d="M9 5l7 7-7 7"/>',
   x:'<path d="M6 6l12 12M18 6L6 18"/>', arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
-  undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>'
+  undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+  more:'<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><circle cx="16.75" cy="16.75" r="3.25"/>'
 };
 const icon = n => `<svg class="i" viewBox="0 0 24 24">${P[n]}</svg>`;
 
@@ -328,7 +348,7 @@ const DB = {
 
 /* ---------- state ---------- */
 const S = {
-  tasks: [], diary: {}, settings: {theme:'auto', suggestions:true, hidden:[]},
+  tasks: [], diary: {}, settings: {theme:'dark', suggestions:true, hidden:[]},
   tab: 'day', date: today(), calYear: new Date().getFullYear(),
   statsPeriod: 'week', statsOffset: 0, diaryDate: today(), diaryQuery: ''
 };
@@ -457,17 +477,17 @@ let sheetOnClose = null;
 function openSheet(html, onClose){
   $('#sheet').innerHTML = html; $('#sheet').scrollTop = 0;
   $('#sheetWrap').classList.add('open'); sheetOnClose = onClose || null;
-  if (tg && tgv('6.1')) tg.BackButton.show();
+  updateBack();
 }
 function closeSheet(){
   if (!$('#sheetWrap').classList.contains('open')) return;
   $('#sheetWrap').classList.remove('open');
-  if (tg && tgv('6.1')) tg.BackButton.hide();
+  updateBack();
   const f = sheetOnClose; sheetOnClose = null; if (f) f();
   document.activeElement && document.activeElement.blur();
 }
-function openViewer(src){ const v = $('#viewer'); v.querySelector('img').src = src; v.classList.add('open'); if (tg && tgv('6.1')) tg.BackButton.show(); }
-function closeViewer(){ $('#viewer').classList.remove('open'); if (tg && tgv('6.1') && !$('#sheetWrap').classList.contains('open')) tg.BackButton.hide(); }
+function openViewer(src){ const v = $('#viewer'); v.querySelector('img').src = src; v.classList.add('open'); updateBack(); }
+function closeViewer(){ $('#viewer').classList.remove('open'); updateBack(); }
 
 function compressImage(file, max = 1280, q = 0.8){
   return new Promise((res, rej) => {
@@ -497,15 +517,35 @@ function applyTheme(){
 }
 
 /* ---------- tabs ---------- */
-const TABS = [['day','Сегодня','day'],['calendar','Календарь','calendar'],['month','Месяц','month'],['stats','Статистика','stats'],['diary','Дневник','diary']];
+/* нижняя панель — максимум 5 пунктов, остальное в «Ещё» */
+const TABS = [['day','Сегодня','day'],['calendar','Календарь','calendar'],['month','Месяц','month'],['diary','Дневник','diary'],['more','Ещё','more']];
+/* разделы внутри «Ещё»: [id, название, иконка, описание] */
+const MORE = [['stats','Статистика','stats','Выполнение задач по неделям, месяцам и годам']];
+const inMore = tab => MORE.some(m => m[0] === tab);
 function renderTabbar(){
-  $('#tabbar').innerHTML = TABS.map(([id, label, ic]) => `<button data-tab="${id}" class="${S.tab === id ? 'active' : ''}">${icon(ic)}${label}</button>`).join('');
+  const cur = inMore(S.tab) ? 'more' : S.tab;
+  $('#tabbar').innerHTML = TABS.map(([id, label, ic]) => `<button data-tab="${id}" class="${cur === id ? 'active' : ''}">${icon(ic)}${label}</button>`).join('');
+}
+/* кнопка «Назад» Telegram: видна, если открыта шторка, фото или раздел из «Ещё» */
+function updateBack(){
+  if (!tg || !tgv('6.1')) return;
+  const need = $('#sheetWrap').classList.contains('open') || $('#viewer').classList.contains('open') || inMore(S.tab);
+  need ? tg.BackButton.show() : tg.BackButton.hide();
+}
+function renderMore(){
+  view.innerHTML = `<div class="h1" style="margin:4px 2px 12px">Ещё</div>
+    <div class="more-list">
+      ${MORE.map(([id, label, ic, desc]) => `<button class="more-item" data-tab="${id}"><span class="more-ic">${icon(ic)}</span><span class="t"><b>${label}</b><span class="sub">${desc}</span></span>${icon('right')}</button>`).join('')}
+      <button class="more-item" data-act="settings"><span class="more-ic">${icon('gear')}</span><span class="t"><b>Настройки</b><span class="sub">Тема, подсказки, резервная копия</span></span>${icon('right')}</button>
+    </div>
+    <div class="note" style="margin-top:16px;text-align:center">Скоро здесь появятся Финансы, Идеи и Здоровье</div>`;
 }
 function render(){
   renderTabbar();
-  const titles = {day:'Ежедневник', calendar:'Календарь', month:'Планы на месяц', stats:'Статистика', diary:'Дневник'};
-  $('#topTitle').textContent = titles[S.tab];
-  ({day:renderDay, calendar:renderCalendar, month:renderMonth, stats:renderStats, diary:renderDiary})[S.tab]();
+  const titles = {day:'Locked<b>Life</b>', calendar:'Календарь', month:'Планы на месяц', stats:'Статистика', diary:'Дневник', more:'Разделы'};
+  $('#topTitle').innerHTML = titles[S.tab];
+  ({day:renderDay, calendar:renderCalendar, month:renderMonth, stats:renderStats, diary:renderDiary, more:renderMore})[S.tab]();
+  updateBack();
 }
 function go(tab){ window.scrollTo(0, 0); S.tab = tab; render(); view.classList.remove('fade'); void view.offsetWidth; view.classList.add('fade'); }
 
@@ -1129,11 +1169,14 @@ async function load(){
   if (tg) {
     tg.ready(); tg.expand();
     try { if (tgv('7.7')) tg.disableVerticalSwipes(); } catch(e){}
-    if (tgv('6.1')) tg.BackButton.onClick(() => { if ($('#viewer').classList.contains('open')) closeViewer(); else closeSheet(); });
+    if (tgv('6.1')) tg.BackButton.onClick(() => { if ($('#viewer').classList.contains('open')) closeViewer(); else if ($('#sheetWrap').classList.contains('open')) closeSheet(); else if (inMore(S.tab)) go('more'); });
     tg.onEvent('themeChanged', () => { if (S.settings.theme === 'auto') applyTheme(); });
   }
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (S.settings.theme === 'auto') applyTheme(); });
-  await DB.open(); await load(); applyTheme(); render();
+  await DB.open(); await load();
+  // однократный переход на новый дизайн: тёмная тема Midnight Blue по умолчанию
+  if (!S.settings.designV) { S.settings.theme = 'dark'; S.settings.designV = 1; await saveSettings(); }
+  applyTheme(); render();
   Sync.init();
   if (Sync.enabled) {
     await Sync.firstRun(); render(); Sync.run();
