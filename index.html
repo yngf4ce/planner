@@ -65,7 +65,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .link-btn{display:block;margin:-8px auto 12px;color:var(--accent);font-size:13px;font-weight:550}
 .progress{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:13px;color:var(--muted)}
 .progress-bar{flex:1;height:6px;border-radius:6px;background:var(--surface2);overflow:hidden}
-.progress-bar i{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .35s}
+.progress-bar i{display:block;height:100%;background:linear-gradient(90deg,#4F7BF0,var(--accent));border-radius:6px;transition:width .35s}
 .quick-add{display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:var(--r);padding:4px 4px 4px 14px;box-shadow:var(--shadow)}
 .quick-add input{flex:1;border:0;outline:0;background:none;padding:10px 0;min-width:0}
 .quick-add input::placeholder{color:var(--muted)}
@@ -77,12 +77,54 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .chip{flex:none;padding:7px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--border);font-size:13.5px;white-space:nowrap;user-select:none;-webkit-user-select:none}
 .chip:active{background:var(--accent-soft)}
 .chip .s{color:var(--star)}
-.task-list{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+/* список задач = одна карточка, задачи разделены линиями */
+.groups{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.task-list{display:flex;flex-direction:column;margin-top:16px;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:2px 0;overflow:hidden}
+.groups .task-list{margin-top:0}
+.tl-h{font-size:13.5px;font-weight:620;color:var(--text);padding:12px 14px 4px}
+.task-list .task{background:none;box-shadow:none;border-radius:0;position:relative}
+.task-list .task+.task::before{content:"";position:absolute;top:0;left:48px;right:14px;height:1px;background:var(--border)}
+.task-list .task.starred{box-shadow:none}
+.task-list .empty{padding:22px 10px}
+.task-meta .m-time{color:var(--accent)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row2 .row{flex-direction:column;align-items:stretch;gap:6px;padding:9px 10px 10px;min-width:0}
+.row2 .row span{font-size:12.5px;color:var(--muted);padding-left:2px}
+.row2 .row input{width:100%;min-width:0}
+.row input[type=time]{border:0;background:var(--surface2);border-radius:9px;padding:8px 10px;outline:0;min-width:84px}
+/* шапка «Сегодня» */
+.today-head{display:flex;align-items:center;gap:12px;margin:6px 2px 6px}
+.th-text{flex:1;min-width:0}
+.greet{font-size:14px;color:var(--text2);margin-bottom:2px}
+.today-head .h1{font-size:28px}
+.ring .ring-bg{fill:none;stroke:var(--surface2);stroke-width:5}
+.ring .ring-fg{fill:none;stroke:var(--accent);stroke-width:5;stroke-linecap:round;transition:stroke-dasharray .4s}
+.ring text{font-size:12px;font-weight:650;fill:var(--text)}
+.day-switch{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 14px}
+.day-switch button{display:inline-flex;align-items:center;gap:2px;font-size:13px;color:var(--muted);padding:6px 4px;border-radius:9px}
+.day-switch button svg.i{width:16px;height:16px}
+.day-switch .to-today{color:var(--accent);font-weight:600;background:var(--accent-soft);padding:6px 12px}
+/* календарь-месяц */
+.cm-card{padding:10px 10px 12px}
+.cm-card .cal-head{margin:0 0 6px}
+.cm-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cm-wd{font-size:11.5px;color:var(--muted);text-align:center;padding:4px 0 6px}
+.cm-d{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 5px;border-radius:12px;font-size:15px;color:var(--text);transition:background .15s}
+.cm-d:active{background:var(--surface2)}
+.cm-d span:first-child{width:32px;height:32px;display:grid;place-items:center;border-radius:50%}
+.cm-d.today span:first-child{background:var(--accent);color:var(--on-accent);font-weight:650}
+.cm-d.sel:not(.today) span:first-child{box-shadow:inset 0 0 0 1.5px var(--accent);color:var(--accent);font-weight:620}
+.cm-dots{display:flex;gap:3px;height:5px}
+.cd{display:inline-block;width:5px;height:5px;border-radius:50%}
+.cd.s-plan{background:var(--accent)} .cd.s-done{background:var(--done)} .cd.s-part{background:var(--star)}
+.cd.s-miss{background:var(--miss)} .cd.s-star{background:var(--star);opacity:.55} .cd.s-diary{background:var(--post)}
+.cm-card .legend{margin:12px 4px 0;gap:6px 12px}
+.cm-card .legend .cd{margin-right:5px;vertical-align:1px}
 .task{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border-radius:14px;padding:12px 10px 12px 12px;box-shadow:var(--shadow);cursor:pointer;transition:opacity .2s}
 .task.starred{box-shadow:inset 3px 0 0 var(--star),var(--shadow)}
 .check{width:24px;height:24px;border-radius:50%;border:1.8px solid var(--muted);display:grid;place-items:center;flex:none;margin-top:-1px;color:var(--bg);transition:all .15s}
 .check svg.i{width:14px;height:14px;stroke-width:3}
-.task.done .check{background:var(--done);border-color:var(--done)}
+.task.done .check{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .task.missed .check{border-color:var(--miss)}
 .task.postponed .check{border-style:dashed;border-color:var(--post);opacity:.7}
 .task-body{flex:1;min-width:0}
@@ -144,7 +186,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 /* stats */
 .seg{display:flex;background:var(--surface2);border-radius:12px;padding:3px;gap:2px}
 .seg button{flex:1;padding:8px 0;border-radius:9px;font-size:14px;color:var(--text2);font-weight:550}
-.seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.seg button.on{background:var(--accent);color:var(--on-accent);font-weight:620}
+.seg button{transition:background .2s,color .2s}
 .period-nav{display:flex;align-items:center;justify-content:space-between;margin:12px 0}
 .period-nav .h2{text-align:center}
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
@@ -350,6 +393,7 @@ const DB = {
 const S = {
   tasks: [], diary: {}, settings: {theme:'dark', suggestions:true, hidden:[]},
   tab: 'day', date: today(), calYear: new Date().getFullYear(),
+  calMode: 'month', calMonth: today().slice(0, 7), calSel: today(),
   statsPeriod: 'week', statsOffset: 0, diaryDate: today(), diaryQuery: ''
 };
 const photoCache = new Map();
@@ -383,7 +427,7 @@ function sortTasks(list){
   const rank = {missed:0, planned:0, done:2, postponed:3};
   return list.slice().sort((a,b) => rank[effStatus(a)] - rank[effStatus(b)] || (b.starred - a.starred) || a.createdAt - b.createdAt);
 }
-function newTask(f){ return {id:uid(), title:'', description:'', photos:[], starred:false, date:S.date, status:'pending', createdAt:Date.now(), ...f}; }
+function newTask(f){ return {id:uid(), title:'', description:'', photos:[], starred:false, date:S.date, time:'', status:'pending', createdAt:Date.now(), ...f}; }
 async function saveTask(t){
   t.updatedAt = Date.now();
   const i = S.tasks.findIndex(x => x.id === t.id);
@@ -420,7 +464,7 @@ async function toggleDone(t){
   haptic(t.status === 'done' ? 'success' : 'light');
 }
 async function postpone(t, date){
-  const copy = newTask({title:t.title, description:t.description, photos:[...(t.photos||[])], starred:t.starred, date, postponedFrom:t.date});
+  const copy = newTask({title:t.title, description:t.description, photos:[...(t.photos||[])], starred:t.starred, time:t.time || '', date, postponedFrom:t.date});
   t.status = 'postponed'; t.postponedTo = date; t.postponedId = copy.id;
   await saveTask(copy); await saveTask(t);
   toast(`Перенесено: ${humanDate(date).toLowerCase()}`); haptic('light');
@@ -552,6 +596,7 @@ function go(tab){ window.scrollTo(0, 0); S.tab = tab; render(); view.classList.r
 /* ---------- task row ---------- */
 function taskRow(t, opts = {}){
   const st = effStatus(t); const meta = [];
+  if (t.time) meta.push(`<span class="m-time">${icon('clock')}${esc(t.time)}</span>`);
   if (st === 'missed') meta.push(`<span class="m-miss">не выполнено</span>`);
   if (st === 'postponed') meta.push(`<span class="m-post">${icon('arrow')} ${esc(humanDate(t.postponedTo))}</span>`);
   if (t.postponedFrom) meta.push(`<span>перенесено с ${esc(shortDate(t.postponedFrom))}</span>`);
@@ -568,27 +613,61 @@ function taskRow(t, opts = {}){
 }
 
 /* ---------- DAY ---------- */
+function greeting(){
+  const h = new Date().getHours();
+  const g = h < 5 ? 'Доброй ночи' : h < 12 ? 'Доброе утро' : h < 17 ? 'Добрый день' : 'Добрый вечер';
+  const u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  return u && u.first_name ? `${g}, ${u.first_name}` : g;
+}
+function ringSVG(pct){
+  const R = 22, C = 2 * Math.PI * R;
+  return `<svg class="ring" viewBox="0 0 54 54" width="58" height="58" role="img" aria-label="Выполнено ${pct}%">
+    <circle cx="27" cy="27" r="${R}" class="ring-bg"/>
+    <circle cx="27" cy="27" r="${R}" class="ring-fg" stroke-dasharray="${C * pct / 100} ${C}" transform="rotate(-90 27 27)"/>
+    <text x="27" y="31" text-anchor="middle">${pct}%</text></svg>`;
+}
+/* группы по времени суток; задачи без времени — сверху */
+const SLOTS = [['Утро', t => t < '12:00'], ['День', t => t >= '12:00' && t < '18:00'], ['Вечер', t => t >= '18:00']];
+function groupByTime(list){
+  const untimed = sortTasks(list.filter(t => !t.time));
+  const timed = list.filter(t => t.time).sort((a, b) => a.time.localeCompare(b.time) || a.createdAt - b.createdAt);
+  const groups = [];
+  if (untimed.length) groups.push([timed.length ? 'В течение дня' : '', untimed]);
+  for (const [label, fits] of SLOTS) { const g = timed.filter(t => fits(t.time)); if (g.length) groups.push([label, g]); }
+  return groups;
+}
+function taskGroups(list, empty){
+  if (!list.length) return `<div class="task-list"><div class="empty">${empty}</div></div>`;
+  return groupByTime(list).map(([label, g]) => `<div class="task-list">${label ? `<div class="tl-h">${label}</div>` : ''}${g.map(t => taskRow(t)).join('')}</div>`).join('');
+}
 function renderDay(){
-  const d = S.date; const list = sortTasks(tasksOn(d));
+  const d = S.date; const list = tasksOn(d);
   const active = list.filter(t => t.status !== 'postponed');
   const done = active.filter(t => t.status === 'done').length;
   const pct = active.length ? Math.round(done / active.length * 100) : 0;
   const sugg = suggestions(d, '', 8);
   const diary = S.diary[d];
   view.innerHTML = `
-    <div class="day-head">
-      <button class="icon-btn" data-act="prevDay" aria-label="Предыдущий день">${icon('left')}</button>
-      <div class="day-title"><div class="h1">${humanDate(d)}</div><div class="sub">${longDate(d)}</div></div>
-      <button class="icon-btn" data-act="nextDay" aria-label="Следующий день">${icon('right')}</button>
+    <div class="today-head">
+      <div class="th-text">
+        ${d === today() ? `<div class="greet">${esc(greeting())}</div>` : ''}
+        <div class="h1">${humanDate(d)}</div><div class="sub">${longDate(d)}</div>
+      </div>
+      ${active.length ? ringSVG(pct) : ''}
     </div>
-    ${d !== today() ? `<button class="link-btn" data-act="goToday">Вернуться к сегодня</button>` : ''}
+    <div class="day-switch">
+      <button data-act="prevDay">${icon('left')}${esc(humanDate(addDays(d, -1)))}</button>
+      ${d !== today() ? `<button class="to-today" data-act="goToday">К сегодня</button>` : ''}
+      <button data-act="nextDay">${esc(humanDate(addDays(d, 1)))}${icon('right')}</button>
+    </div>
     ${active.length ? `<div class="progress"><div class="progress-bar"><i style="width:${pct}%"></i></div><span>${done} из ${active.length}</span></div>` : ''}
     <form class="quick-add" id="quickForm">
       <input id="quickInput" placeholder="Новая задача…" autocomplete="off" maxlength="200" enterkeyhint="done">
       <button type="button" class="add-btn" data-act="newTask" aria-label="Подробнее">${icon('plus')}</button>
     </form>
     ${sugg.length ? `<div class="chips-label">Часто добавляете — нажмите, чтобы добавить</div><div class="chips" id="dayChips">${sugg.map(chipHTML).join('')}</div>` : ''}
-    <div class="task-list">${list.length ? list.map(t => taskRow(t)).join('') : `<div class="empty">На этот день планов пока нет</div>`}</div>
+    <div class="groups">${taskGroups(list, 'На этот день планов пока нет')}</div>
+    <button class="btn ghost wide" style="margin-top:12px" data-act="newTask">${icon('plus')} Новая задача</button>
     <button class="diary-link" data-act="openDiaryDay">${icon('diary')}<span>${diary && diary.text ? esc((diary.mood ? diary.mood + ' ' : '') + diary.text) : 'Записать мысли за день'}</span>${icon('right')}</button>`;
   $('#quickForm').addEventListener('submit', async e => {
     e.preventDefault(); const v = $('#quickInput').value.trim(); if (!v) return;
@@ -609,7 +688,11 @@ function openEditor(task, presetDate){
     <div class="chips" id="edSugg" style="margin:-2px 0 10px"></div>
     <textarea class="field" id="edDesc" placeholder="Описание, заметки…">${esc(t.description)}</textarea>
     <div class="photos" id="edPhotos"></div>
-    <label class="row"><span>Дата</span><input type="date" id="edDate" value="${t.date}"></label>
+    <div class="row2">
+      <label class="row"><span>Дата</span><input type="date" id="edDate" value="${t.date}"></label>
+      <label class="row"><span>Время</span><input type="time" id="edTime" value="${esc(t.time || '')}"></label>
+    </div>
+    <div class="note" style="margin:-4px 0 10px">Время необязательно. С ним задача попадёт в группу «Утро», «День» или «Вечер».</div>
     ${st === 'postponed' ? `<div class="note" style="margin:0 0 10px">Задача перенесена на ${esc(humanDate(task.postponedTo).toLowerCase())}.</div>` : ''}
     ${!isNew ? `<div class="actions">
         ${st === 'postponed' ? `<button class="btn ghost" data-act="edUnpostpone">${icon('undo')} Вернуть</button>` : (st !== 'done' ? `<button class="btn ghost" data-act="edPostpone">${icon('clock')} Отложить</button>` : '')}
@@ -637,6 +720,7 @@ function syncEditor(){
   editing.title = $('#edTitle').value.trim();
   editing.description = $('#edDesc').value.trim();
   editing.date = $('#edDate').value || editing.date;
+  editing.time = $('#edTime') ? $('#edTime').value : (editing.time || '');
 }
 async function saveEditor(){
   syncEditor(); const t = editing;
@@ -677,7 +761,48 @@ function dayInfo(){
   }
   return by;
 }
+/* цвет состояния дня: всё выполнено / частично / не выполнено / в планах */
+function dayState(key, e, t0){
+  if (!e || !e.active) return '';
+  if (e.done === e.active) return 'done';
+  if (key < t0) return e.done ? 'part' : 'miss';
+  return e.done ? 'part' : 'plan';
+}
 function renderCalendar(){
+  view.innerHTML = `<div class="seg" style="margin:4px 0 12px">${[['month','Месяц'],['year','Год']].map(([k, l]) => `<button class="${S.calMode === k ? 'on' : ''}" data-calmode="${k}">${l}</button>`).join('')}</div><div id="calBody"></div>`;
+  S.calMode === 'year' ? renderCalYear() : renderCalMonth();
+}
+function renderCalMonth(){
+  const [y, m] = S.calMonth.split('-').map(Number);
+  const first = new Date(y, m - 1, 1); const off = wdIdx(first); const days = new Date(y, m, 0).getDate();
+  const by = dayInfo(); const t0 = today(); const sel = S.calSel;
+  let cells = WD_SHORT.map(w => `<div class="cm-wd">${w}</div>`).join('') + '<div></div>'.repeat(off);
+  for (let d = 1; d <= days; d++) {
+    const key = `${y}-${pad(m)}-${pad(d)}`; const e = by[key]; const st = dayState(key, e, t0);
+    const dots = (st ? `<i class="cd s-${st}"></i>` : '') + (e && e.star ? '<i class="cd s-star"></i>' : '') + (S.diary[key] && S.diary[key].text ? '<i class="cd s-diary"></i>' : '');
+    cells += `<button class="cm-d${key === t0 ? ' today' : ''}${key === sel ? ' sel' : ''}" data-calsel="${key}"><span>${d}</span><span class="cm-dots">${dots}</span></button>`;
+  }
+  const selList = tasksOn(sel);
+  $('#calBody').innerHTML = `
+    <div class="card cm-card">
+      <div class="cal-head">
+        <button class="icon-btn" data-act="calPrev" aria-label="Предыдущий месяц">${icon('left')}</button>
+        <div class="h2">${MONTHS[m - 1]} ${y}</div>
+        <button class="icon-btn" data-act="calNext" aria-label="Следующий месяц">${icon('right')}</button>
+      </div>
+      <div class="cm-grid">${cells}</div>
+      <div class="legend">
+        <span><i class="cd s-plan"></i>в планах</span><span><i class="cd s-done"></i>выполнено</span>
+        <span><i class="cd s-part"></i>частично</span><span><i class="cd s-miss"></i>не выполнено</span>
+        <span><i class="cd s-star"></i>важное</span><span><i class="cd s-diary"></i>дневник</span>
+      </div>
+    </div>
+    <div class="day-group-h" style="margin:18px 2px 8px"><div><b>${humanDate(sel)}</b><span class="sub">${WD_FULL[parse(sel).getDay()]}</span></div>
+      <button class="small-add" data-plan="${sel}">${icon('plus')}Добавить</button></div>
+    ${taskGroups(selList, 'Задач на этот день нет')}
+    <button class="btn ghost wide" style="margin-top:12px" data-day="${sel}">Открыть день ${icon('arrow')}</button>`;
+}
+function renderCalYear(){
   const y = S.calYear; const by = dayInfo(); const t0 = today(); const now = new Date();
   let html = `<div class="cal-head">
       <button class="icon-btn" data-act="calPrev" aria-label="Предыдущий год">${icon('left')}</button>
@@ -697,12 +822,12 @@ function renderCalendar(){
         else cls += e.done === e.active ? ' c-done' : e.done ? ' c-part' : ' has';
       }
       if (key === t0) cls += ' today';
-      cells += `<button class="${cls}" data-day="${key}">${d}${e && e.star ? '<i class="dot"></i>' : ''}${S.diary[key] && S.diary[key].text ? '<i class="ddot"></i>' : ''}</button>`;
+      cells += `<button class="${cls}" data-calpick="${key}">${d}${e && e.star ? '<i class="dot"></i>' : ''}${S.diary[key] && S.diary[key].text ? '<i class="ddot"></i>' : ''}</button>`;
     }
     const cur = y === now.getFullYear() && m === now.getMonth();
     html += `<div class="mini-month${cur ? ' current' : ''}"><div class="mm-title">${MONTHS[m]}</div><div class="mm-grid">${cells}</div></div>`;
   }
-  view.innerHTML = html + '</div>';
+  $('#calBody').innerHTML = html + '</div>';
   if (y === now.getFullYear()) { const c = view.querySelector('.mini-month.current'); if (c && now.getMonth() > 3) requestAnimationFrame(() => c.scrollIntoView({block:'center'})); }
 }
 
@@ -941,7 +1066,7 @@ async function importData(file){
 
 /* ---------- events ---------- */
 document.addEventListener('click', async e => {
-  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view]');
+  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view],[data-calmode],[data-calsel],[data-calpick]');
   if (!el) return;
   if (longPressFired) { longPressFired = false; return; }
   const ds = el.dataset;
@@ -952,6 +1077,9 @@ document.addEventListener('click', async e => {
   if (ds.edsugg) { $('#edTitle').value = ds.edsugg; renderEdSugg(); $('#edDesc').focus(); return; }
   if (ds.task) { const t = S.tasks.find(x => x.id === ds.task); if (t) openEditor(t); return; }
   if (ds.day) { S.date = ds.day; go('day'); return; }
+  if (ds.calmode) { S.calMode = ds.calmode; if (ds.calmode === 'year') S.calYear = Number(S.calMonth.slice(0, 4)); renderCalendar(); return; }
+  if (ds.calsel) { S.calSel = ds.calsel; haptic('light'); renderCalMonth(); return; }
+  if (ds.calpick) { S.calMode = 'month'; S.calSel = ds.calpick; S.calMonth = ds.calpick.slice(0, 7); renderCalendar(); window.scrollTo(0, 0); return; }
   if (ds.plan) { openEditor(null, ds.plan); return; }
   if (ds.postpone) { const t = postponeTarget; closeSheet(); await postpone(t, ds.postpone); render(); return; }
   if (ds.period) { S.statsPeriod = ds.period; S.statsOffset = 0; renderStats(); return; }
@@ -981,8 +1109,12 @@ document.addEventListener('click', async e => {
     case 'edPostpone': { syncEditor(); if (editing.title) { await saveTask(editing); edSaved = true; } const t = S.tasks.find(x => x.id === editing.id); closeSheet(); setTimeout(() => openPostpone(t), 180); break; }
     case 'edUnpostpone': { const t = S.tasks.find(x => x.id === editing.id); edSaved = true; closeSheet(); await unpostpone(t); render(); break; }
     case 'ppCustom': { const v = $('#ppDate').value; if (!v) return; const t = postponeTarget; closeSheet(); await postpone(t, v); render(); break; }
-    case 'calPrev': S.calYear--; renderCalendar(); break;
-    case 'calNext': S.calYear++; renderCalendar(); break;
+    case 'calPrev': case 'calNext': {
+      const k = ds.act === 'calPrev' ? -1 : 1;
+      if (S.calMode === 'year') S.calYear += k;
+      else { const [y, m] = S.calMonth.split('-').map(Number); const n = new Date(y, m - 1 + k, 1); S.calMonth = `${n.getFullYear()}-${pad(n.getMonth() + 1)}`; }
+      renderCalendar(); break;
+    }
     case 'planNew': openEditor(null, addDays(today(), 1)); break;
     case 'statPrev': S.statsOffset--; renderStats(); break;
     case 'statNext': if (S.statsOffset < 0) { S.statsOffset++; renderStats(); } break;
