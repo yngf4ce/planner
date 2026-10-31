@@ -87,7 +87,42 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .task-list .task.starred{box-shadow:none}
 .task-list .empty{padding:22px 10px}
 .task-meta .m-time{color:var(--accent)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+/* поля даты/времени: убираем системную ширину iOS, чтобы не вылезали за карточку */
+input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;min-height:38px;line-height:22px;color:var(--text);font:inherit;text-align:left}
+input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value{text-align:left;margin:0}
+input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-calendar-picker-indicator{opacity:.6;filter:invert(.6)}
+html[data-theme=light] input[type=date]::-webkit-calendar-picker-indicator,html[data-theme=light] input[type=time]::-webkit-calendar-picker-indicator{filter:none}
+/* «Месяц» */
+.mon-head{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:4px 2px 12px}
+.mon-head .h1{font-size:26px}
+.mon-nav{display:flex;align-items:center;gap:2px}
+.to-today-sm{font-size:13px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:6px 10px;border-radius:9px}
+.gs-top{display:flex;justify-content:space-between;align-items:baseline}
+.gs-pct{color:var(--accent);font-weight:650;font-size:17px}
+.goal-sum .progress-bar{display:block;margin-top:10px}
+.g-prog{display:flex;align-items:center;gap:10px;margin-top:7px}
+.g-prog .progress-bar{flex:1;max-width:200px;height:5px}
+.plus1{flex:none;align-self:center;padding:7px 11px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font-weight:650;font-size:13px}
+.plus1:active{transform:scale(.95)}
+.check.rep{border:0;color:var(--muted)}
+.check.rep svg.i{width:18px;height:18px;stroke-width:1.8}
+.task.paused{opacity:.5}
+.task-meta .m-rep{color:var(--accent)}
+.rep-ic{color:var(--muted);opacity:.7;pointer-events:none}
+.wd-pick{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.wd-pick button{padding:10px 0;border-radius:11px;background:var(--surface);border:1px solid var(--border);font-size:13.5px;font-weight:550;color:var(--text2);transition:background .15s}
+.wd-pick button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.card-row{background:var(--surface);border:1px solid var(--border)!important;border-radius:13px;margin-bottom:10px}
+.card-row .sub{display:block;font-size:12.5px;margin-top:2px}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:36px;height:36px;border-radius:10px;background:var(--surface2);font-size:20px;line-height:1}
+.stepper b{min-width:36px;text-align:center;font-size:17px}
+.row input.num{width:90px;border:0;background:var(--surface2);border-radius:9px;padding:8px 10px;outline:0;text-align:center;color:var(--text)}
+.row2 .row input.num{width:100%;text-align:left}
+.clear-end{text-align:left;cursor:pointer}
+.clear-end span:first-child{color:var(--accent)!important;font-size:14px!important;font-weight:600}
+.row .sub{font-size:11.5px}
 .row2 .row{flex-direction:column;align-items:stretch;gap:6px;padding:9px 10px 10px;min-width:0}
 .row2 .row span{font-size:12.5px;color:var(--muted);padding-left:2px}
 .row2 .row input{width:100%;min-width:0}
@@ -325,6 +360,7 @@ const P = {
   left:'<path d="M15 5l-7 7 7 7"/>', right:'<path d="M9 5l7 7-7 7"/>',
   x:'<path d="M6 6l12 12M18 6L6 18"/>', arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
   undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+  repeat:'<path d="M17 2.5l3.5 3.5L17 9.5"/><path d="M3.5 11V10a4 4 0 0 1 4-4h13"/><path d="M7 21.5L3.5 18 7 14.5"/><path d="M20.5 13v1a4 4 0 0 1-4 4h-13"/>',
   more:'<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><circle cx="16.75" cy="16.75" r="3.25"/>'
 };
 const icon = n => `<svg class="i" viewBox="0 0 24 24">${P[n]}</svg>`;
@@ -359,7 +395,7 @@ const DB = {
   async open(){
     try {
       this.db = await new Promise((res, rej) => {
-        const r = indexedDB.open('tg-planner', 2);
+        const r = indexedDB.open('tg-planner', 3);
         r.onupgradeneeded = () => {
           const db = r.result;
           if (!db.objectStoreNames.contains('outbox')) db.createObjectStore('outbox', {keyPath:'key'});
@@ -367,12 +403,14 @@ const DB = {
           if (!db.objectStoreNames.contains('diary')) db.createObjectStore('diary', {keyPath:'date'});
           if (!db.objectStoreNames.contains('photos')) db.createObjectStore('photos', {keyPath:'id'});
           if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', {keyPath:'key'});
+          if (!db.objectStoreNames.contains('goals')) db.createObjectStore('goals', {keyPath:'id'});
+          if (!db.objectStoreNames.contains('rules')) db.createObjectStore('rules', {keyPath:'id'});
         };
         r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
       });
     } catch (e) {
       console.warn('IndexedDB недоступна, данные хранятся только в памяти', e);
-      this.mem = {tasks:new Map(), diary:new Map(), photos:new Map(), meta:new Map(), outbox:new Map()};
+      this.mem = {tasks:new Map(), diary:new Map(), photos:new Map(), meta:new Map(), outbox:new Map(), goals:new Map(), rules:new Map()};
     }
   },
   key(store, v){ return store === 'diary' ? v.date : (store === 'meta' || store === 'outbox') ? v.key : v.id; },
@@ -391,7 +429,7 @@ const DB = {
 
 /* ---------- state ---------- */
 const S = {
-  tasks: [], diary: {}, settings: {theme:'dark', suggestions:true, hidden:[]},
+  tasks: [], goals: [], rules: [], diary: {}, monthSel: today().slice(0, 7), settings: {theme:'dark', suggestions:true, hidden:[]},
   tab: 'day', date: today(), calYear: new Date().getFullYear(),
   calMode: 'month', calMonth: today().slice(0, 7), calSel: today(),
   statsPeriod: 'week', statsOffset: 0, diaryDate: today(), diaryQuery: ''
@@ -586,7 +624,7 @@ function renderMore(){
 }
 function render(){
   renderTabbar();
-  const titles = {day:'Locked<b>Life</b>', calendar:'Календарь', month:'Планы на месяц', stats:'Статистика', diary:'Дневник', more:'Разделы'};
+  const titles = {day:'Locked<b>Life</b>', calendar:'Календарь', month:'Месяц', stats:'Статистика', diary:'Дневник', more:'Разделы'};
   $('#topTitle').innerHTML = titles[S.tab];
   ({day:renderDay, calendar:renderCalendar, month:renderMonth, stats:renderStats, diary:renderDiary, more:renderMore})[S.tab]();
   updateBack();
@@ -596,19 +634,23 @@ function go(tab){ window.scrollTo(0, 0); S.tab = tab; render(); view.classList.r
 /* ---------- task row ---------- */
 function taskRow(t, opts = {}){
   const st = effStatus(t); const meta = [];
+  const rule = t.recurring ? S.rules.find(r => r.id === t.ruleId) : null;
+  if (rule) meta.push(`<span class="m-rep">${icon('repeat')}${esc(daysText(rule.days))}</span>`);
   if (t.time) meta.push(`<span class="m-time">${icon('clock')}${esc(t.time)}</span>`);
   if (st === 'missed') meta.push(`<span class="m-miss">не выполнено</span>`);
   if (st === 'postponed') meta.push(`<span class="m-post">${icon('arrow')} ${esc(humanDate(t.postponedTo))}</span>`);
   if (t.postponedFrom) meta.push(`<span>перенесено с ${esc(shortDate(t.postponedFrom))}</span>`);
   if (t.description) meta.push(`<span>${icon('note')}</span>`);
   if (t.photos && t.photos.length) meta.push(`<span>${icon('photo')}${t.photos.length}</span>`);
-  return `<div class="task ${st}${t.starred ? ' starred' : ''}" data-task="${t.id}">
-    <button class="check" data-check="${t.id}" aria-label="Отметить">${st === 'done' ? icon('check') : ''}</button>
+  const rowAttr = t.recurring ? `data-rule="${t.ruleId}"` : `data-task="${t.id}"`;
+  const chkAttr = t.recurring ? `data-rcheck="${t.ruleId}|${t.date}"` : `data-check="${t.id}"`;
+  return `<div class="task ${st}${t.starred ? ' starred' : ''}" ${rowAttr}>
+    <button class="check" ${chkAttr} aria-label="Отметить">${st === 'done' ? icon('check') : ''}</button>
     <div class="task-body">
       <div class="task-title">${opts.showDate ? `<span class="date-tag">${esc(shortDate(t.date))}</span>` : ''}${esc(t.title)}</div>
       ${meta.length ? `<div class="task-meta">${meta.join('')}</div>` : ''}
     </div>
-    <button class="star${t.starred ? ' on' : ''}" data-star="${t.id}" aria-label="Важное">${icon('star')}</button>
+    ${t.recurring ? `<span class="star rep-ic" title="Повторяется">${icon('repeat')}</span>` : `<button class="star${t.starred ? ' on' : ''}" data-star="${t.id}" aria-label="Важное">${icon('star')}</button>`}
   </div>`;
 }
 
@@ -641,7 +683,7 @@ function taskGroups(list, empty){
   return groupByTime(list).map(([label, g]) => `<div class="task-list">${label ? `<div class="tl-h">${label}</div>` : ''}${g.map(t => taskRow(t)).join('')}</div>`).join('');
 }
 function renderDay(){
-  const d = S.date; const list = tasksOn(d);
+  const d = S.date; const list = allOn(d);
   const active = list.filter(t => t.status !== 'postponed');
   const done = active.filter(t => t.status === 'done').length;
   const pct = active.length ? Math.round(done / active.length * 100) : 0;
@@ -755,10 +797,13 @@ let postponeTarget = null;
 /* ---------- CALENDAR ---------- */
 function dayInfo(){
   const by = {};
-  for (const t of S.tasks) {
+  const add = t => {
     const e = by[t.date] || (by[t.date] = {n:0, done:0, star:false, active:0});
     e.n++; if (t.status !== 'postponed') e.active++; if (t.status === 'done') e.done++; if (t.starred && t.status !== 'postponed') e.star = true;
-  }
+  };
+  for (const t of S.tasks) add(t);
+  const lim = addDays(today(), 400);   // повторы считаем не дальше чем на ~год вперёд
+  for (const r of S.rules) for (const d of ruleDates(r, r.start, lim)) add(ruleOcc(r, d));
   return by;
 }
 /* цвет состояния дня: всё выполнено / частично / не выполнено / в планах */
@@ -782,7 +827,7 @@ function renderCalMonth(){
     const dots = (st ? `<i class="cd s-${st}"></i>` : '') + (e && e.star ? '<i class="cd s-star"></i>' : '') + (S.diary[key] && S.diary[key].text ? '<i class="cd s-diary"></i>' : '');
     cells += `<button class="cm-d${key === t0 ? ' today' : ''}${key === sel ? ' sel' : ''}" data-calsel="${key}"><span>${d}</span><span class="cm-dots">${dots}</span></button>`;
   }
-  const selList = tasksOn(sel);
+  const selList = allOn(sel);
   $('#calBody').innerHTML = `
     <div class="card cm-card">
       <div class="cal-head">
@@ -831,26 +876,107 @@ function renderCalYear(){
   if (y === now.getFullYear()) { const c = view.querySelector('.mini-month.current'); if (c && now.getMonth() > 3) requestAnimationFrame(() => c.scrollIntoView({block:'center'})); }
 }
 
+/* ---------- RECURRING RULES & MONTH GOALS ---------- */
+/* Повторяющаяся задача хранится как ПРАВИЛО (а не копии на каждый день):
+   {id, title, description, days:[0..6] (0 = Пн), start, end ('' = без срока), time, paused, done:{'YYYY-MM-DD':true}}
+   Цель месяца: {id, month:'YYYY-MM', title, description, target (число или null), progress, done} */
+const DAY_ALL = [0, 1, 2, 3, 4, 5, 6];
+function ruleActiveOn(r, date){ return !r.paused && r.start <= date && (!r.end || date <= r.end) && (r.days || DAY_ALL).includes(wdIdx(parse(date))); }
+function ruleOcc(r, date){
+  return {id:`r:${r.id}:${date}`, ruleId:r.id, recurring:true, date, title:r.title, description:r.description || '', photos:[],
+          time:r.time || '', starred:false, status: r.done && r.done[date] ? 'done' : 'pending', createdAt:r.createdAt};
+}
+/* все задачи дня: обычные + повторяющиеся */
+function allOn(date){ return [...tasksOn(date), ...S.rules.filter(r => ruleActiveOn(r, date)).map(r => ruleOcc(r, date))]; }
+function ruleDates(r, from, to){
+  const out = []; let d = r.start > from ? r.start : from; const end = r.end && r.end < to ? r.end : to; let guard = 0;
+  while (d <= end && guard++ < 800) { if (ruleActiveOn(r, d)) out.push(d); d = addDays(d, 1); }
+  return out;
+}
+function daysText(days){
+  const d = (days || DAY_ALL).slice().sort().join();
+  if (d === '0,1,2,3,4,5,6') return 'каждый день';
+  if (d === '0,1,2,3,4') return 'по будням';
+  if (d === '5,6') return 'по выходным';
+  return (days || []).slice().sort().map(i => WD_SHORT[i]).join(', ');
+}
+async function saveRule(r){
+  r.updatedAt = Date.now();
+  const i = S.rules.findIndex(x => x.id === r.id); if (i >= 0) S.rules[i] = r; else S.rules.push(r);
+  await DB.put('rules', r); await queue('rule', r.id, r);
+}
+async function removeRule(id){ S.rules = S.rules.filter(x => x.id !== id); await DB.del('rules', id); await queue('rule', id, null, true); }
+async function saveGoal(g){
+  g.updatedAt = Date.now();
+  const i = S.goals.findIndex(x => x.id === g.id); if (i >= 0) S.goals[i] = g; else S.goals.push(g);
+  await DB.put('goals', g); await queue('goal', g.id, g);
+}
+async function removeGoal(id){ S.goals = S.goals.filter(x => x.id !== id); await DB.del('goals', id); await queue('goal', id, null, true); }
+async function toggleRuleDay(ruleId, date){
+  const r = S.rules.find(x => x.id === ruleId); if (!r) return;
+  r.done = {...(r.done || {})};
+  if (r.done[date]) delete r.done[date]; else r.done[date] = true;
+  await saveRule(r); haptic(r.done[date] ? 'success' : 'light');
+}
+
 /* ---------- MONTH ---------- */
-function renderMonth(){
-  const t0 = today(); const end = addDays(t0, 30);
-  const up = S.tasks.filter(x => x.date >= t0 && x.date <= end && x.status !== 'postponed');
-  const overdue = sortTasks(S.tasks.filter(x => x.date < t0 && x.date >= addDays(t0, -14) && x.status === 'pending'));
-  const important = sortTasks(up.filter(x => x.starred && x.status !== 'done'));
-  const groups = {}; up.forEach(x => (groups[x.date] = groups[x.date] || []).push(x));
-  const dates = Object.keys(groups).sort();
-  let html = `<div class="h1" style="margin-top:4px">Ближайшие 30 дней</div>
-    <div class="sub">до ${esc(humanDate(end).toLowerCase())}</div>
-    <div class="summary">
-      <div class="card"><b>${up.length}</b><span>${plural(up.length,'задача','задачи','задач')}</span></div>
-      <div class="card"><b>${up.filter(x => x.starred).length}</b><span>важных</span></div>
-      <div class="card"><b>${dates.length}</b><span>${plural(dates.length,'день','дня','дней')} с планами</span></div>
+function monthBounds(mon){ const [y, m] = mon.split('-').map(Number); return {y, m, from:`${mon}-01`, to:ymd(new Date(y, m, 0))}; }
+function goalRow(g){
+  const pct = g.target ? Math.min(100, Math.round(g.progress / g.target * 100)) : 0;
+  return `<div class="task${g.done ? ' done' : ''}" data-goal="${g.id}">
+    <button class="check" data-gcheck="${g.id}" aria-label="Отметить">${g.done ? icon('check') : ''}</button>
+    <div class="task-body">
+      <div class="task-title">${esc(g.title)}</div>
+      ${g.target ? `<div class="g-prog"><span class="progress-bar"><i style="width:${pct}%"></i></span><span class="sub">${g.progress} / ${g.target}</span></div>` : ''}
+      ${g.description ? `<div class="task-meta"><span>${icon('note')}</span></div>` : ''}
     </div>
-    <button class="btn primary wide" style="margin-top:12px" data-act="planNew">${icon('plus')} Запланировать</button>`;
+    ${g.target && !g.done ? `<button class="plus1" data-gplus="${g.id}" aria-label="Плюс один">+1</button>` : ''}
+  </div>`;
+}
+function ruleRow(r, from, to){
+  const t0 = today(); const upto = to < t0 ? to : t0;
+  const past = upto >= from ? ruleDates({...r, paused:false}, from, upto) : [];
+  const done = past.filter(d => r.done && r.done[d]).length;
+  const todayOn = ruleActiveOn(r, t0) && t0 >= from && t0 <= to; const doneToday = !!(r.done && r.done[t0]);
+  return `<div class="task${todayOn && doneToday ? ' done' : ''}${r.paused ? ' paused' : ''}" data-rule="${r.id}">
+    ${todayOn ? `<button class="check" data-rcheck="${r.id}|${t0}" aria-label="Выполнено сегодня">${doneToday ? icon('check') : ''}</button>` : `<span class="check rep">${icon('repeat')}</span>`}
+    <div class="task-body">
+      <div class="task-title">${esc(r.title)}</div>
+      <div class="task-meta"><span class="m-rep">${icon('repeat')}${esc(daysText(r.days))}${r.time ? ' · ' + esc(r.time) : ''}</span>
+        ${r.paused ? '<span class="m-post">на паузе</span>' : ''}${past.length ? `<span>${done} из ${past.length} дн.</span>` : ''}${r.end ? `<span>до ${esc(shortDate(r.end))}</span>` : ''}</div>
+    </div>
+  </div>`;
+}
+function renderMonth(){
+  const mon = S.monthSel; const {y, m, from, to} = monthBounds(mon); const t0 = today(); const isCur = mon === t0.slice(0, 7);
+  const goals = S.goals.filter(g => g.month === mon).sort((a, b) => a.done - b.done || a.createdAt - b.createdAt);
+  const gDone = goals.filter(g => g.done).length; const gPct = goals.length ? Math.round(gDone / goals.length * 100) : 0;
+  const rules = S.rules.filter(r => r.start <= to && (!r.end || r.end >= from)).sort((a, b) => (a.paused - b.paused) || a.createdAt - b.createdAt);
+  const dated = S.tasks.filter(x => x.date >= from && x.date <= to && x.status !== 'postponed' && (!isCur || x.date >= t0));
+  const overdue = isCur ? sortTasks(S.tasks.filter(x => x.date < t0 && x.date >= addDays(t0, -14) && x.status === 'pending')) : [];
+  const groups = {}; dated.forEach(x => (groups[x.date] = groups[x.date] || []).push(x));
+  const dates = Object.keys(groups).sort();
+  let html = `
+    <div class="mon-head">
+      <div><div class="h1">План на месяц</div><div class="sub">${MONTHS[m - 1]} ${y}</div></div>
+      <div class="mon-nav">
+        <button class="icon-btn" data-act="monPrev" aria-label="Предыдущий месяц">${icon('left')}</button>
+        ${!isCur ? `<button class="to-today-sm" data-act="monCur">Сейчас</button>` : ''}
+        <button class="icon-btn" data-act="monNext" aria-label="Следующий месяц">${icon('right')}</button>
+      </div>
+    </div>
+    <div class="card goal-sum">
+      <div class="gs-top"><b>Цели месяца</b><span class="gs-pct">${gPct}%</span></div>
+      <div class="sub">${gDone} из ${goals.length}</div>
+      <div class="progress-bar"><i style="width:${gPct}%"></i></div>
+    </div>
+    <div class="task-list" style="margin-top:10px">${goals.length ? goals.map(goalRow).join('') : '<div class="empty">Целей на этот месяц пока нет</div>'}</div>
+    <div class="section-label">Повторяющиеся</div>
+    <div class="task-list" style="margin-top:0">${rules.length ? rules.map(r => ruleRow(r, from, to)).join('') : '<div class="empty">Нет повторяющихся задач.<br>Включите «Повторять» при добавлении.</div>'}</div>
+    <button class="btn primary wide" style="margin-top:14px" data-act="monAdd">${icon('plus')} Добавить цель или задачу</button>`;
   if (overdue.length) html += `<div class="section-label">Просрочено за 2 недели</div><div class="task-list" style="margin-top:0">${overdue.map(t => taskRow(t, {showDate:true})).join('')}</div>`;
-  if (important.length) html += `<div class="section-label">★ Важное</div><div class="task-list" style="margin-top:0">${important.map(t => taskRow(t, {showDate:true})).join('')}</div>`;
-  html += `<div class="section-label">По дням</div>`;
-  if (!dates.length) html += `<div class="empty">Планов на ближайший месяц пока нет.<br>Нажмите «Запланировать», чтобы добавить.</div>`;
+  html += `<div class="section-label">Задачи с датой</div>`;
+  if (!dates.length) html += `<div class="task-list" style="margin-top:0"><div class="empty">${isCur ? 'На оставшиеся дни месяца задач с датой нет' : 'Задач с датой в этом месяце нет'}</div></div>`;
   for (const d of dates) {
     const dt = parse(d);
     html += `<div class="day-group"><div class="day-group-h"><div><b>${humanDate(d)}</b><span class="sub">${WD_FULL[dt.getDay()]}</span></div>
@@ -858,6 +984,93 @@ function renderMonth(){
       <div class="task-list" style="margin-top:0">${sortTasks(groups[d]).map(t => taskRow(t)).join('')}</div></div>`;
   }
   view.innerHTML = html;
+}
+
+/* форма: новая цель/задача, редактирование цели, редактирование повтора */
+let mf = null;
+function openMonthForm(kind, item){
+  const {from, to} = monthBounds(S.monthSel); const t0 = today();
+  if (kind === 'new') mf = {kind, repeat:false, days:[...DAY_ALL], start: t0 >= from && t0 <= to ? t0 : from, end:to, time:'', date:'', target:''};
+  else if (kind === 'goal') mf = {kind, id:item.id, target:item.target || '', progress:item.progress || 0};
+  else mf = {kind, id:item.id, repeat:true, days:[...(item.days || DAY_ALL)], start:item.start, end:item.end || '', time:item.time || '', paused:!!item.paused};
+  const title = kind === 'new' ? 'Новая цель или задача' : kind === 'goal' ? 'Цель месяца' : 'Повторяющаяся задача';
+  openSheet(`
+    <div class="sheet-head"><div class="h2">${title}</div></div>
+    <input class="field title" id="mfTitle" placeholder="${kind === 'goal' ? 'Например: отправить 30 откликов' : 'Что нужно сделать?'}" value="${esc(item ? item.title : '')}" maxlength="200" autocomplete="off">
+    <textarea class="field" id="mfDesc" placeholder="Описание (необязательно)">${esc(item ? item.description || '' : '')}</textarea>
+    ${kind === 'new' ? `<button class="set-row card-row" data-act="mfRepeat"><span><b>Повторять</b><span class="sub">Задача будет сама появляться во вкладке «Сегодня»</span></span><span class="toggle" id="mfRepTg"></span></button>` : ''}
+    <div id="mfVar"></div>
+    ${kind !== 'new' ? `<div class="actions">
+      ${kind === 'rule' ? `<button class="btn ghost" data-act="mfPause">${mf.paused ? 'Возобновить' : 'Пауза'}</button>` : ''}
+      <button class="btn ghost danger" data-act="mfDelete">Удалить</button></div>` : ''}
+    <button class="btn primary wide" data-act="mfSave">${kind === 'new' ? 'Добавить' : 'Сохранить'}</button>`,
+    () => { mf = null; });
+  renderMfVar();
+  if (kind === 'new') setTimeout(() => $('#mfTitle') && $('#mfTitle').focus(), 280);
+}
+function renderMfVar(){
+  const box = $('#mfVar'); if (!box || !mf) return;
+  if (mf.kind === 'goal') {
+    box.innerHTML = `
+      <label class="row"><span>Цель в числах <span class="sub">(необяз.)</span></span><input type="number" inputmode="numeric" min="1" max="100000" id="mfTarget" class="num" value="${mf.target}" placeholder="—"></label>
+      ${mf.target ? `<div class="row"><span>Прогресс</span><span class="stepper"><button data-act="mfMinus" aria-label="Минус">−</button><b id="mfProg">${mf.progress}</b><button data-act="mfPlus" aria-label="Плюс">+</button></span></div>` : ''}`;
+    $('#mfTarget').addEventListener('change', () => { mfCollect(); renderMfVar(); });
+    return;
+  }
+  if (mf.repeat) {
+    box.innerHTML = `
+      <div class="chips-label" style="margin-top:2px">Дни недели</div>
+      <div class="wd-pick">${WD_SHORT.map((w, i) => `<button class="${mf.days.includes(i) ? 'on' : ''}" data-rday="${i}">${w}</button>`).join('')}</div>
+      <div class="chips" style="margin:8px 0 12px">${[['all','Каждый день'],['work','Будни'],['weekend','Выходные']].map(([k, l]) => `<button class="chip" data-rpreset="${k}">${l}</button>`).join('')}</div>
+      <div class="row2">
+        <label class="row"><span>Начало</span><input type="date" id="mfStart" value="${mf.start}"></label>
+        <label class="row"><span>Окончание</span><input type="date" id="mfEnd" value="${mf.end}"></label>
+      </div>
+      <div class="row2">
+        <label class="row"><span>Время <span class="sub">(необяз.)</span></span><input type="time" id="mfTime" value="${mf.time}"></label>
+        <button class="row clear-end" data-act="mfNoEnd"><span>Без срока</span><span class="sub">очистить окончание</span></button>
+      </div>
+      <div class="note" style="margin:-4px 0 10px">Каждый день задача сама появится в «Сегодня», а отметка выполнения ставится отдельно для каждого дня.</div>`;
+    return;
+  }
+  box.innerHTML = `
+    <div class="row2">
+      <label class="row"><span>Дата <span class="sub">(необяз.)</span></span><input type="date" id="mfDate" value="${mf.date}"></label>
+      <label class="row"><span>Цель в числах</span><input type="number" inputmode="numeric" min="1" max="100000" id="mfTarget" class="num" value="${mf.target}" placeholder="—"></label>
+    </div>
+    <div class="note" style="margin:-4px 0 10px">Без даты — это цель месяца: она останется только здесь. С датой — обычная задача на этот день. «Цель в числах» — например, 30 откликов.</div>`;
+}
+function mfCollect(){
+  if (!mf) return;
+  const v = id => { const e = $('#' + id); return e ? e.value : undefined; };
+  for (const [id, k] of [['mfStart','start'],['mfEnd','end'],['mfTime','time'],['mfDate','date'],['mfTarget','target']]) { const x = v(id); if (x !== undefined) mf[k] = x; }
+}
+async function saveMonthForm(){
+  mfCollect();
+  const title = $('#mfTitle').value.trim(); const description = $('#mfDesc').value.trim();
+  if (!title) { $('#mfTitle').focus(); toast('Введите название'); return; }
+  const target = Math.floor(Number(mf.target)) > 0 ? Math.min(100000, Math.floor(Number(mf.target))) : null;
+  if (mf.kind === 'goal') {
+    const g = S.goals.find(x => x.id === mf.id); if (!g) return;
+    Object.assign(g, {title, description, target, progress: target ? Math.min(mf.progress, target) : 0});
+    if (target) g.done = g.progress >= target;
+    await saveGoal(g);
+  } else if (mf.repeat) {
+    if (!mf.days.length) { toast('Выберите хотя бы один день'); return; }
+    if (!mf.start) { toast('Укажите дату начала'); return; }
+    if (mf.end && mf.end < mf.start) { toast('Окончание раньше начала'); return; }
+    const base = mf.kind === 'rule' ? S.rules.find(x => x.id === mf.id) : {id:uid(), done:{}, paused:false, createdAt:Date.now()};
+    if (!base) return;
+    Object.assign(base, {title, description, days:mf.days.slice().sort(), start:mf.start, end:mf.end || '', time:mf.time || ''});
+    await saveRule(base);
+    if (mf.kind === 'new') toast(`Будет появляться ${daysText(base.days)}`);
+  } else if (mf.date) {
+    await saveTask(newTask({title, description, date:mf.date}));
+    toast(`Добавлено: ${humanDate(mf.date).toLowerCase()}`);
+  } else {
+    await saveGoal({id:uid(), month:S.monthSel, title, description, target, progress:0, done:false, createdAt:Date.now()});
+  }
+  closeSheet(); haptic('light'); render();
 }
 
 /* ---------- STATS ---------- */
@@ -881,6 +1094,7 @@ function periodRange(){
 function countIn(from, to){
   const c = {done:0, postponed:0, missed:0, planned:0};
   for (const t of S.tasks) if (t.date >= from && t.date <= to) c[effStatus(t)]++;
+  for (const r of S.rules) for (const d of ruleDates(r, from, to)) c[effStatus(ruleOcc(r, d))]++;
   return c;
 }
 function streak(){
@@ -1031,7 +1245,7 @@ function openSettings(){
 }
 async function exportData(){
   const photos = await DB.all('photos');
-  const data = {app:'tg-planner', version:1, exportedAt:new Date().toISOString(), settings:S.settings, tasks:S.tasks, diary:Object.values(S.diary), photos};
+  const data = {app:'tg-planner', version:2, exportedAt:new Date().toISOString(), settings:S.settings, tasks:S.tasks, goals:S.goals, rules:S.rules, diary:Object.values(S.diary), photos};
   const name = `planner-backup-${today()}.json`;
   const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
   try {
@@ -1047,7 +1261,10 @@ async function wipeAll(){
   for (const t of S.tasks) await queue('task', t.id, null, true);
   for (const d of Object.keys(S.diary)) await queue('diary', d, null, true);
   for (const p of await DB.all('photos')) { await DB.del('outbox', `photoUpload:${p.id}`); await queue('photoDelete', p.id, null, true); }
-  for (const s of ['tasks','diary','photos']) await DB.clear(s);
+  for (const g of S.goals) await queue('goal', g.id, null, true);
+  for (const r of S.rules) await queue('rule', r.id, null, true);
+  for (const s of ['tasks','diary','photos','goals','rules']) await DB.clear(s);
+  S.goals = []; S.rules = [];
   S.tasks = []; S.diary = {}; photoCache.clear();
 }
 async function importData(file){
@@ -1058,6 +1275,8 @@ async function importData(file){
     await wipeAll();
     for (const p of data.photos || []) { await DB.put('photos', p); await queue('photoUpload', p.id, null); }
     for (const t of data.tasks) await saveTask(t);
+    for (const g of data.goals || []) await saveGoal(g);
+    for (const r of data.rules || []) await saveRule(r);
     for (const d of data.diary || []) { const e = {...d, updatedAt: Date.now()}; await DB.put('diary', e); await queue('diary', e.date, e); }
     if (data.settings) { S.settings = {...S.settings, ...data.settings}; await saveSettings(); }
     photoCache.clear(); await load(); applyTheme(); closeSheet(); render(); toast('Данные восстановлены');
@@ -1066,7 +1285,7 @@ async function importData(file){
 
 /* ---------- events ---------- */
 document.addEventListener('click', async e => {
-  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view],[data-calmode],[data-calsel],[data-calpick]');
+  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view],[data-calmode],[data-calsel],[data-calpick],[data-rcheck],[data-rule],[data-goal],[data-gcheck],[data-gplus],[data-rday],[data-rpreset]');
   if (!el) return;
   if (longPressFired) { longPressFired = false; return; }
   const ds = el.dataset;
@@ -1076,6 +1295,13 @@ document.addEventListener('click', async e => {
   if (ds.sugg) { const s = suggestions(S.date, '', 50).find(x => x.key === ds.key); await saveTask(newTask({title:ds.sugg, date:S.date, starred: !!(s && s.starred > s.count/2)})); haptic('light'); render(); return; }
   if (ds.edsugg) { $('#edTitle').value = ds.edsugg; renderEdSugg(); $('#edDesc').focus(); return; }
   if (ds.task) { const t = S.tasks.find(x => x.id === ds.task); if (t) openEditor(t); return; }
+  if (ds.rcheck) { e.stopPropagation(); const [rid, d] = ds.rcheck.split('|'); await toggleRuleDay(rid, d); render(); return; }
+  if (ds.rule) { const r = S.rules.find(x => x.id === ds.rule); if (r) openMonthForm('rule', r); return; }
+  if (ds.gcheck) { e.stopPropagation(); const g = S.goals.find(x => x.id === ds.gcheck); if (g) { g.done = !g.done; if (g.done && g.target) g.progress = g.target; await saveGoal(g); haptic(g.done ? 'success' : 'light'); render(); } return; }
+  if (ds.gplus) { e.stopPropagation(); const g = S.goals.find(x => x.id === ds.gplus); if (g && g.target) { g.progress = Math.min(g.target, (g.progress || 0) + 1); g.done = g.progress >= g.target; await saveGoal(g); haptic(g.done ? 'success' : 'light'); render(); } return; }
+  if (ds.goal) { const g = S.goals.find(x => x.id === ds.goal); if (g) openMonthForm('goal', g); return; }
+  if (ds.rday) { const i = Number(ds.rday); mfCollect(); mf.days = mf.days.includes(i) ? mf.days.filter(x => x !== i) : [...mf.days, i]; haptic('light'); renderMfVar(); return; }
+  if (ds.rpreset) { mfCollect(); mf.days = ({all:DAY_ALL, work:[0,1,2,3,4], weekend:[5,6]})[ds.rpreset].slice(); haptic('light'); renderMfVar(); return; }
   if (ds.day) { S.date = ds.day; go('day'); return; }
   if (ds.calmode) { S.calMode = ds.calmode; if (ds.calmode === 'year') S.calYear = Number(S.calMonth.slice(0, 4)); renderCalendar(); return; }
   if (ds.calsel) { S.calSel = ds.calsel; haptic('light'); renderCalMonth(); return; }
@@ -1115,7 +1341,23 @@ document.addEventListener('click', async e => {
       else { const [y, m] = S.calMonth.split('-').map(Number); const n = new Date(y, m - 1 + k, 1); S.calMonth = `${n.getFullYear()}-${pad(n.getMonth() + 1)}`; }
       renderCalendar(); break;
     }
-    case 'planNew': openEditor(null, addDays(today(), 1)); break;
+    case 'monPrev': case 'monNext': { const [y, m] = S.monthSel.split('-').map(Number); const n = new Date(y, m - 1 + (ds.act === 'monPrev' ? -1 : 1), 1); S.monthSel = `${n.getFullYear()}-${pad(n.getMonth() + 1)}`; renderMonth(); break; }
+    case 'monCur': S.monthSel = today().slice(0, 7); renderMonth(); break;
+    case 'monAdd': openMonthForm('new'); break;
+    case 'mfRepeat': mfCollect(); mf.repeat = !mf.repeat; $('#mfRepTg').classList.toggle('on', mf.repeat); haptic('light'); renderMfVar(); break;
+    case 'mfNoEnd': mfCollect(); mf.end = ''; renderMfVar(); break;
+    case 'mfMinus': case 'mfPlus': { mf.progress = Math.max(0, Math.min(Number(mf.target) || 0, mf.progress + (ds.act === 'mfPlus' ? 1 : -1))); $('#mfProg').textContent = mf.progress; break; }
+    case 'mfSave': await saveMonthForm(); break;
+    case 'mfPause': {
+      const r = S.rules.find(x => x.id === mf.id); if (!r) break;
+      r.paused = !r.paused; await saveRule(r); closeSheet(); render();
+      toast(r.paused ? 'Повтор на паузе — в «Сегодня» не появится' : 'Повтор возобновлён'); break;
+    }
+    case 'mfDelete': {
+      if (mf.kind === 'goal') { if (await confirmDlg('Удалить цель?')) { const id = mf.id; closeSheet(); await removeGoal(id); render(); toast('Цель удалена'); } }
+      else if (await confirmDlg('Удалить повторяющуюся задачу вместе с историей выполнения? Чтобы просто остановить её, нажмите «Пауза».')) { const id = mf.id; closeSheet(); await removeRule(id); render(); toast('Повтор удалён'); }
+      break;
+    }
     case 'statPrev': S.statsOffset--; renderStats(); break;
     case 'statNext': if (S.statsOffset < 0) { S.statsOffset++; renderStats(); } break;
     case 'diaryPrev': flushDiary(); S.diaryDate = addDays(S.diaryDate, -1); renderDiary(); break;
@@ -1293,6 +1535,8 @@ function softRender(){
 /* ---------- init ---------- */
 async function load(){
   S.tasks = await DB.all('tasks');
+  S.goals = await DB.all('goals');
+  S.rules = await DB.all('rules');
   S.diary = {}; (await DB.all('diary')).forEach(d => S.diary[d.date] = d);
   const st = await DB.get('meta', 'settings'); if (st) { S.settings = {...S.settings, ...st.value}; S.settingsUpdatedAt = st.updatedAt || 0; }
 }

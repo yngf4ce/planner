@@ -16,6 +16,8 @@
 | `tasks` | `id` | задача: `title, description, photos[], starred, date (YYYY-MM-DD), status (pending/done/postponed), postponedTo/From, createdAt, updatedAt` |
 | `diary` | `date` | `text, mood, updatedAt` |
 | `photos` | `id` | фото в виде base64 data URL (сжатые до 1280px JPEG) |
+| `goals` | `id` | цель месяца: `month (YYYY-MM), title, description, target, progress, done` |
+| `rules` | `id` | правило повторения: `title, description, days[] (0 = Пн), start, end, time, paused, done{дата: true}` |
 | `meta` | `key` | настройки, служебные метки синхронизации |
 | `outbox` | `key` | очередь изменений для сервера |
 
@@ -24,7 +26,9 @@
 |---|---|
 | `DB` | обёртка над IndexedDB |
 | `S` | состояние приложения (задачи, дневник, текущая вкладка) |
-| `render*` | отрисовка вкладок: `renderDay`, `renderCalendar`, `renderMonth`, `renderStats`, `renderDiary` |
+| `render*` | отрисовка вкладок: `renderDay`, `renderCalendar`, `renderMonth`, `renderStats`, `renderDiary`, `renderMore` |
+| `allOn(date)` | все задачи дня: обычные + «виртуальные» вхождения повторов (`ruleOcc`) |
+| `openMonthForm` | форма «Месяца»: новая цель/задача/повтор, редактирование цели и повтора |
 | `openEditor` / `openPostpone` / `openSettings` | нижние «шторки» (sheet) |
 | `Sync` | клиент синхронизации (пока не используется) |
 | общий обработчик `click` | все кнопки работают через атрибуты `data-act`, `data-task` и т.д. |
@@ -36,7 +40,6 @@
 3. **Монолитный файл.** Добавление финансов, целей, идей и ИИ в один файл сделает его трудным для поддержки.
 4. **Дизайн** — светлая бежево‑зелёная палитра, не соответствует целевому стилю Midnight Blue.
 5. **Нижняя панель уже занята 5 вкладками** — для «Финансов» и «Идей» нужен пункт «Ещё».
-6. **«Месяц»** — это список ближайших 30 дней, а не цели месяца; повторяющихся задач нет.
 7. **Фото в base64** занимают ~на 33% больше места; при переходе на сервер их лучше хранить файлами в Storage.
 8. Дата «сегодня» берётся из часов устройства; часовой пояс пользователя нигде не сохраняется (нужно для бота).
 
