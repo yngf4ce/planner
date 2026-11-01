@@ -169,6 +169,8 @@ SQL Editor → вставить `supabase/migrations/003_bot.sql` → **Run** �
 4. Скопировать адрес функции из колонки **URL** (может быть случайным, например `.../functions/v1/xxx-function`).
 5. Проверка: открыть `АДРЕС/health` → `"token":true, "webhookSecret":true, "groq":true, "allowed":1`.
 
+> У LockedLife функция бота сейчас: `https://muyrgklzrimnzipjcgil.supabase.co/functions/v1/smart-endpoint`
+
 ### 6.5. Подключение к Telegram
 Открыть в браузере: `АДРЕС/setup?key=ВАШ_TELEGRAM_WEBHOOK_SECRET` → `{"webhook":"ok","commands":"ok",...}`.
 (Ссылку с секретом никому не отправляйте.) После этого бот отвечает на `/start`.
