@@ -22,6 +22,7 @@
 | `categories` | `id` | категория: `name, emoji, color, kind (expense/income), archived` |
 | `txns` | `id` | операция: `type (expense/income/transfer), amount (центы), accountId, toAccountId, toAmount, categoryId, date, note, source` |
 | `budgets` | `id` (= id категории) | месячный лимит категории в основной валюте: `limit (центы)` |
+| `ideas` | `id` | идея: `title, body, tags[], status (new/work/archive), source (app/bot), transcript` |
 | `meta` | `key` | настройки, служебные метки синхронизации |
 | `outbox` | `key` | очередь изменений для сервера |
 

@@ -142,6 +142,26 @@ html[data-theme=light] input[type=date]::-webkit-calendar-picker-indicator,html[
 .emoji-pick button{height:42px;border-radius:11px;background:var(--surface);font-size:20px;border:1px solid var(--border)}
 .emoji-pick button.on{border-color:var(--accent);background:var(--accent-soft)}
 .seg button[disabled]{opacity:.45}
+/* «Идеи» */
+.idea-filter .chip.on,.chip.tag.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.idea-filter .chip.on .sub{color:var(--on-accent);opacity:.7}
+.idea-filter .chip .sub{font-size:12px;margin-left:2px}
+.idea-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.idea-card{display:flex;gap:12px;cursor:pointer;padding:14px}
+.idea-card:active{background:var(--surface2)}
+.idea-card.archived{opacity:.55}
+.idea-ic{width:38px;height:38px;border-radius:50%;background:rgba(230,185,104,.14);color:var(--star);display:grid;place-items:center;flex:none}
+.idea-body{flex:1;min-width:0}
+.idea-title{font-weight:620;font-size:15.5px;word-wrap:break-word}
+.idea-text{font-size:13.5px;color:var(--text2);margin-top:3px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line}
+.idea-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.pill{font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:8px;background:var(--surface2);color:var(--text2)}
+.pill.tag{background:var(--accent-soft);color:var(--accent)}
+.pill.st-new{background:rgba(146,155,170,.16);color:var(--text2)}
+.pill.st-work{background:rgba(101,185,154,.16);color:var(--done)}
+.pill.st-archive{background:var(--surface2);color:var(--muted)}
+.idea-date{margin-left:auto;font-size:12px;color:var(--muted)}
+.transcript{background:var(--surface);border-radius:12px;padding:10px 12px;margin:0 0 12px;white-space:pre-line}
 /* «Месяц» */
 .mon-head{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:4px 2px 12px}
 .mon-head .h1{font-size:26px}
@@ -413,6 +433,7 @@ const P = {
   wallet:'<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M16 13.5h1.5"/>',
   eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
   eyeOff:'<path d="M3 3l18 18"/><path d="M10.6 5.6A10 10 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.6 3.4M6.6 6.7C4 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.6 0 3-.4 4.2-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1.1 1.3 1.1 2.2h5c0-.9.5-1.7 1.1-2.2A6 6 0 0 0 12 3z"/>',
   more:'<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><circle cx="16.75" cy="16.75" r="3.25"/>'
 };
 const icon = n => `<svg class="i" viewBox="0 0 24 24">${P[n]}</svg>`;
@@ -447,7 +468,7 @@ const DB = {
   async open(){
     try {
       this.db = await new Promise((res, rej) => {
-        const r = indexedDB.open('tg-planner', 4);
+        const r = indexedDB.open('tg-planner', 5);
         r.onupgradeneeded = () => {
           const db = r.result;
           if (!db.objectStoreNames.contains('outbox')) db.createObjectStore('outbox', {keyPath:'key'});
@@ -456,13 +477,13 @@ const DB = {
           if (!db.objectStoreNames.contains('photos')) db.createObjectStore('photos', {keyPath:'id'});
           if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', {keyPath:'key'});
           if (!db.objectStoreNames.contains('goals')) db.createObjectStore('goals', {keyPath:'id'});
-          for (const st of ['rules','accounts','categories','txns','budgets']) if (!db.objectStoreNames.contains(st)) db.createObjectStore(st, {keyPath:'id'});
+          for (const st of ['rules','accounts','categories','txns','budgets','ideas']) if (!db.objectStoreNames.contains(st)) db.createObjectStore(st, {keyPath:'id'});
         };
         r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
       });
     } catch (e) {
       console.warn('IndexedDB недоступна, данные хранятся только в памяти', e);
-      this.mem = {tasks:new Map(), diary:new Map(), photos:new Map(), meta:new Map(), outbox:new Map(), goals:new Map(), rules:new Map(), accounts:new Map(), categories:new Map(), txns:new Map(), budgets:new Map()};
+      this.mem = {tasks:new Map(), diary:new Map(), photos:new Map(), meta:new Map(), outbox:new Map(), goals:new Map(), rules:new Map(), accounts:new Map(), categories:new Map(), txns:new Map(), budgets:new Map(), ideas:new Map()};
     }
   },
   key(store, v){ return store === 'diary' ? v.date : (store === 'meta' || store === 'outbox') ? v.key : v.id; },
@@ -481,7 +502,8 @@ const DB = {
 
 /* ---------- state ---------- */
 const S = {
-  tasks: [], goals: [], rules: [], accounts: [], categories: [], txns: [], budgets: [], diary: {},
+  tasks: [], goals: [], rules: [], accounts: [], categories: [], txns: [], budgets: [], ideas: [], diary: {},
+  ideaFilter: 'all', ideaTag: '', ideaQuery: '',
   finTab: 'overview', finMonth: today().slice(0, 7), finFilter: {acc:'', cat:''}, monthSel: today().slice(0, 7), settings: {theme:'dark', suggestions:true, hidden:[], mainCurrency:'EUR', hideMoney:false},
   tab: 'day', date: today(), calYear: new Date().getFullYear(),
   calMode: 'month', calMonth: today().slice(0, 7), calSel: today(),
@@ -655,7 +677,7 @@ function applyTheme(){
 /* нижняя панель — максимум 5 пунктов, остальное в «Ещё» */
 const TABS = [['day','Сегодня','day'],['calendar','Календарь','calendar'],['month','Месяц','month'],['finance','Финансы','wallet'],['more','Ещё','more']];
 /* разделы внутри «Ещё»: [id, название, иконка, описание] */
-const MORE = [['diary','Дневник','diary','Записи и настроение за день'],['stats','Статистика','stats','Выполнение задач по неделям, месяцам и годам']];
+const MORE = [['ideas','Идеи','bulb','Мысли, заметки и планы на будущее'],['diary','Дневник','diary','Записи и настроение за день'],['stats','Статистика','stats','Выполнение задач по неделям, месяцам и годам']];
 const inMore = tab => MORE.some(m => m[0] === tab);
 function renderTabbar(){
   const cur = inMore(S.tab) ? 'more' : S.tab;
@@ -673,13 +695,13 @@ function renderMore(){
       ${MORE.map(([id, label, ic, desc]) => `<button class="more-item" data-tab="${id}"><span class="more-ic">${icon(ic)}</span><span class="t"><b>${label}</b><span class="sub">${desc}</span></span>${icon('right')}</button>`).join('')}
       <button class="more-item" data-act="settings"><span class="more-ic">${icon('gear')}</span><span class="t"><b>Настройки</b><span class="sub">Тема, подсказки, резервная копия</span></span>${icon('right')}</button>
     </div>
-    <div class="note" style="margin-top:16px;text-align:center">Скоро здесь появятся Идеи и Здоровье</div>`;
+    <div class="note" style="margin-top:16px;text-align:center">Скоро здесь появится Здоровье</div>`;
 }
 function render(){
   renderTabbar();
-  const titles = {day:'Locked<b>Life</b>', calendar:'Календарь', month:'Месяц', finance:'Финансы', stats:'Статистика', diary:'Дневник', more:'Разделы'};
+  const titles = {day:'Locked<b>Life</b>', calendar:'Календарь', month:'Месяц', finance:'Финансы', ideas:'Идеи', stats:'Статистика', diary:'Дневник', more:'Разделы'};
   $('#topTitle').innerHTML = titles[S.tab];
-  ({day:renderDay, calendar:renderCalendar, month:renderMonth, finance:renderFinance, stats:renderStats, diary:renderDiary, more:renderMore})[S.tab]();
+  ({day:renderDay, calendar:renderCalendar, month:renderMonth, finance:renderFinance, ideas:renderIdeas, stats:renderStats, diary:renderDiary, more:renderMore})[S.tab]();
   updateBack();
 }
 function go(tab){ window.scrollTo(0, 0); S.tab = tab; render(); view.classList.remove('fade'); void view.offsetWidth; view.classList.add('fade'); }
@@ -1133,7 +1155,8 @@ async function saveMonthForm(){
 const CURRENCIES = ['EUR', 'USD', 'UAH'];
 const CUR_SIGN = {EUR:'€', USD:'$', UAH:'₴'};
 /* коллекции: тип записи → имя массива в S и хранилища IndexedDB */
-const COLL = {goal:'goals', rule:'rules', account:'accounts', category:'categories', txn:'txns', budget:'budgets'};
+const COLL = {goal:'goals', rule:'rules', account:'accounts', category:'categories', txn:'txns', budget:'budgets', idea:'ideas'};
+const FIN_KINDS = ['account','category','txn','budget','idea'];   // коллекции с общими save/remove (saveItem/removeItem)
 const FIN_COLORS = ['#80A7FF','#65B99A','#E6B968','#E07A6A','#A78BFA','#F28CB1','#5CC8D7','#929BAA'];
 const FIN_EMOJI = ['🛒','🍽️','☕','🚌','⛽','🚕','✈️','🏠','💡','📱','🎮','🎬','🛍️','👕','💊','🏋️','📚','🎁','🐾','💳','💼','💰','📈','🏷️','📦'];
 const DEF_CATS = [
@@ -1470,6 +1493,71 @@ function openCatForm(c, kind, back){
   if (!c) setTimeout(() => $('#cfName') && $('#cfName').focus(), 280);
 }
 
+/* ---------- IDEAS ---------- */
+/* идея: {id, title, body, tags:[строки], status:'new'|'work'|'archive', source:'app'|'bot', transcript, createdAt, updatedAt} */
+const IDEA_ST = {new:'Новая', work:'В работе', archive:'Архив'};
+const ideaTags = () => [...new Set(S.ideas.flatMap(i => i.tags || []))].sort((a, b) => a.localeCompare(b));
+function renderIdeas(){
+  const q = S.ideaQuery.trim().toLowerCase(); const f = S.ideaFilter; const tag = S.ideaTag;
+  const cnt = st => S.ideas.filter(i => st === 'all' ? i.status !== 'archive' : i.status === st).length;
+  const list = S.ideas
+    .filter(i => f === 'all' ? i.status !== 'archive' : i.status === f)
+    .filter(i => !tag || (i.tags || []).includes(tag))
+    .filter(i => !q || [i.title, i.body, i.transcript, ...(i.tags || [])].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => b.createdAt - a.createdAt);
+  const tags = ideaTags();
+  view.innerHTML = `
+    <div class="fin-head"><div class="h1">Идеи</div></div>
+    <input class="search" id="ideaSearch" placeholder="Поиск по идеям" value="${esc(S.ideaQuery)}" autocomplete="off">
+    <div class="chips idea-filter">${[['all','Все'],['new','Новые'],['work','В работе'],['archive','Архив']].map(([k, l]) => `<button class="chip${f === k ? ' on' : ''}" data-ifilter="${k}">${l} <span class="sub">${cnt(k)}</span></button>`).join('')}</div>
+    ${tags.length ? `<div class="chips" style="margin-top:8px">${tags.map(t => `<button class="chip tag${tag === t ? ' on' : ''}" data-itag="${esc(t)}">#${esc(t)}</button>`).join('')}</div>` : ''}
+    <div class="idea-list">${list.length ? list.map(ideaCard).join('') : `<div class="task-list"><div class="empty">${q || tag ? 'Ничего не найдено' : f === 'archive' ? 'В архиве пусто' : 'Идей пока нет.<br>Нажмите «+», чтобы записать первую.'}</div></div>`}</div>
+    <div class="note" style="text-align:center;margin-top:14px">Скоро идеи можно будет надиктовать голосом боту Noctis — они появятся здесь.</div>
+    <div style="height:64px"></div>
+    <button class="fab" data-act="ideaNew" aria-label="Новая идея">${icon('plus')}</button>`;
+  let st; $('#ideaSearch').addEventListener('input', ev => { clearTimeout(st); st = setTimeout(() => { S.ideaQuery = ev.target.value; const pos = ev.target.selectionStart; renderIdeas(); const s = $('#ideaSearch'); s.focus(); s.setSelectionRange(pos, pos); }, 250); });
+}
+function ideaCard(i){
+  return `<div class="card idea-card${i.status === 'archive' ? ' archived' : ''}" data-idea="${i.id}">
+    <div class="idea-ic">${icon('bulb')}</div>
+    <div class="idea-body">
+      <div class="idea-title">${esc(i.title)}</div>
+      ${i.body ? `<div class="idea-text">${esc(i.body)}</div>` : ''}
+      <div class="idea-meta">
+        ${(i.tags || []).map(t => `<span class="pill tag">${esc(t)}</span>`).join('')}
+        <button class="pill st-${i.status}" data-istatus="${i.id}" aria-label="Сменить статус">${IDEA_ST[i.status] || 'Новая'}</button>
+        ${i.source === 'bot' ? `<span class="pill">🎙 бот</span>` : ''}
+        <span class="idea-date">${esc(shortDate(ymd(new Date(i.createdAt))))}</span>
+      </div>
+    </div>
+  </div>`;
+}
+let idf = null;
+function openIdeaForm(i){
+  idf = i ? {...i, tags:[...(i.tags || [])]} : {id:uid(), isNew:true, title:'', body:'', tags:[], status:'new', source:'app', createdAt:Date.now()};
+  openSheet(`
+    <div class="sheet-head"><div class="h2">${idf.isNew ? 'Новая идея' : 'Идея'}</div></div>
+    <input class="field title" id="ifTitle" placeholder="Коротко: в чём идея?" maxlength="120" value="${esc(idf.title)}" autocomplete="off">
+    <textarea class="field" id="ifBody" placeholder="Подробности, шаги, ссылки…" style="min-height:120px">${esc(idf.body || '')}</textarea>
+    <label class="flabel">Теги (через запятую)</label>
+    <input class="field" id="ifTags" placeholder="Например: Бизнес, AI" value="${esc(idf.tags.join(', '))}" autocomplete="off">
+    ${ideaTags().length ? `<div class="chips" style="margin:-4px 0 12px">${ideaTags().map(t => `<button class="chip" data-iaddtag="${esc(t)}">+ ${esc(t)}</button>`).join('')}</div>` : ''}
+    <label class="flabel">Статус</label>
+    <div class="seg" style="margin-bottom:12px">${Object.entries(IDEA_ST).map(([k, l]) => `<button class="${idf.status === k ? 'on' : ''}" data-ifst="${k}">${l}</button>`).join('')}</div>
+    ${idf.transcript ? `<label class="flabel">Расшифровка голосового</label><div class="note transcript">${esc(idf.transcript)}</div>` : ''}
+    ${!idf.isNew ? `<div class="actions">
+      <button class="btn ghost" data-act="ideaToTask">${icon('day')} В задачи</button>
+      <button class="btn ghost danger" data-act="ideaDelete">Удалить</button></div>` : ''}
+    <button class="btn primary wide" data-act="ideaSave">${idf.isNew ? 'Сохранить идею' : 'Сохранить'}</button>`, () => { idf = null; });
+  if (idf.isNew) setTimeout(() => $('#ifTitle') && $('#ifTitle').focus(), 280);
+}
+function ideaCollect(){
+  if (!idf) return null;
+  const tags = [...new Set($('#ifTags').value.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean).map(t => t.slice(0, 24)))].slice(0, 8);
+  const {isNew, ...rest} = idf;
+  return {...rest, title:$('#ifTitle').value.trim(), body:$('#ifBody').value.trim(), tags};
+}
+
 /* ---------- STATS ---------- */
 function periodRange(){
   const now = parse(today()); const off = S.statsOffset; const p = S.statsPeriod;
@@ -1645,7 +1733,7 @@ function openSettings(){
 }
 async function exportData(){
   const photos = await DB.all('photos');
-  const data = {app:'tg-planner', version:2, exportedAt:new Date().toISOString(), settings:S.settings, tasks:S.tasks, goals:S.goals, rules:S.rules, accounts:S.accounts, categories:S.categories, txns:S.txns, budgets:S.budgets, diary:Object.values(S.diary), photos};
+  const data = {app:'tg-planner', version:2, exportedAt:new Date().toISOString(), settings:S.settings, tasks:S.tasks, goals:S.goals, rules:S.rules, accounts:S.accounts, categories:S.categories, txns:S.txns, budgets:S.budgets, ideas:S.ideas, diary:Object.values(S.diary), photos};
   const name = `planner-backup-${today()}.json`;
   const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
   try {
@@ -1663,9 +1751,9 @@ async function wipeAll(){
   for (const p of await DB.all('photos')) { await DB.del('outbox', `photoUpload:${p.id}`); await queue('photoDelete', p.id, null, true); }
   for (const g of S.goals) await queue('goal', g.id, null, true);
   for (const r of S.rules) await queue('rule', r.id, null, true);
-  for (const k of ['account','category','txn','budget']) for (const o of S[COLL[k]]) await queue(k, o.id, null, true);
-  for (const s of ['tasks','diary','photos','goals','rules','accounts','categories','txns','budgets']) await DB.clear(s);
-  S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = [];
+  for (const k of FIN_KINDS) for (const o of S[COLL[k]]) await queue(k, o.id, null, true);
+  for (const s of ['tasks','diary','photos','goals','rules','accounts','categories','txns','budgets','ideas']) await DB.clear(s);
+  S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = []; S.ideas = [];
   S.tasks = []; S.diary = {}; photoCache.clear();
 }
 async function importData(file){
@@ -1678,7 +1766,7 @@ async function importData(file){
     for (const t of data.tasks) await saveTask(t);
     for (const g of data.goals || []) await saveGoal(g);
     for (const r of data.rules || []) await saveRule(r);
-    for (const k of ['account','category','txn','budget']) for (const o of data[COLL[k]] || []) await saveItem(k, o);
+    for (const k of FIN_KINDS) for (const o of data[COLL[k]] || []) await saveItem(k, o);
     for (const d of data.diary || []) { const e = {...d, updatedAt: Date.now()}; await DB.put('diary', e); await queue('diary', e.date, e); }
     if (data.settings) { S.settings = {...S.settings, ...data.settings}; await saveSettings(); }
     photoCache.clear(); await load(); applyTheme(); closeSheet(); render(); toast('Данные восстановлены');
@@ -1687,7 +1775,7 @@ async function importData(file){
 
 /* ---------- events ---------- */
 document.addEventListener('click', async e => {
-  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view],[data-calmode],[data-calsel],[data-calpick],[data-rcheck],[data-rule],[data-goal],[data-gcheck],[data-gplus],[data-rday],[data-rpreset],[data-fintab],[data-acc],[data-txn],[data-budget],[data-ftype],[data-fcat],[data-afcur],[data-afcolor],[data-catedit],[data-catnew],[data-cfemoji],[data-cfcolor],[data-setcur]');
+  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view],[data-calmode],[data-calsel],[data-calpick],[data-rcheck],[data-rule],[data-goal],[data-gcheck],[data-gplus],[data-rday],[data-rpreset],[data-fintab],[data-acc],[data-txn],[data-budget],[data-ftype],[data-fcat],[data-afcur],[data-afcolor],[data-catedit],[data-catnew],[data-cfemoji],[data-cfcolor],[data-setcur],[data-idea],[data-istatus],[data-ifilter],[data-itag],[data-ifst],[data-iaddtag]');
   if (!el) return;
   if (longPressFired) { longPressFired = false; return; }
   const ds = el.dataset;
@@ -1717,6 +1805,12 @@ document.addEventListener('click', async e => {
   if (ds.cfemoji) { cf.emoji = ds.cfemoji; document.querySelectorAll('[data-cfemoji]').forEach(b => b.classList.toggle('on', b.dataset.cfemoji === cf.emoji)); return; }
   if (ds.cfcolor) { cf.color = ds.cfcolor; document.querySelectorAll('[data-cfcolor]').forEach(b => b.classList.toggle('on', b.dataset.cfcolor === cf.color)); return; }
   if (ds.setcur) { S.settings.mainCurrency = ds.setcur; await saveSettings(); openSettings(); render(); return; }
+  if (ds.istatus) { e.stopPropagation(); const i = S.ideas.find(x => x.id === ds.istatus); if (i) { const order = ['new','work','archive']; i.status = order[(order.indexOf(i.status) + 1) % 3]; await saveItem('idea', i); haptic('light'); renderIdeas(); toast(`Статус: ${IDEA_ST[i.status]}`); } return; }
+  if (ds.idea) { const i = S.ideas.find(x => x.id === ds.idea); if (i) openIdeaForm(i); return; }
+  if (ds.ifilter) { S.ideaFilter = ds.ifilter; renderIdeas(); return; }
+  if (ds.itag !== undefined) { S.ideaTag = S.ideaTag === ds.itag ? '' : ds.itag; renderIdeas(); return; }
+  if (ds.ifst) { idf.status = ds.ifst; document.querySelectorAll('[data-ifst]').forEach(b => b.classList.toggle('on', b.dataset.ifst === idf.status)); return; }
+  if (ds.iaddtag) { const inp = $('#ifTags'); const cur = inp.value.split(',').map(t => t.trim()).filter(Boolean); if (!cur.includes(ds.iaddtag)) cur.push(ds.iaddtag); inp.value = cur.join(', '); return; }
   if (ds.day) { S.date = ds.day; go('day'); return; }
   if (ds.calmode) { S.calMode = ds.calmode; if (ds.calmode === 'year') S.calYear = Number(S.calMonth.slice(0, 4)); renderCalendar(); return; }
   if (ds.calsel) { S.calSel = ds.calsel; haptic('light'); renderCalMonth(); return; }
@@ -1759,6 +1853,16 @@ document.addEventListener('click', async e => {
     case 'monPrev': case 'monNext': { const [y, m] = S.monthSel.split('-').map(Number); const n = new Date(y, m - 1 + (ds.act === 'monPrev' ? -1 : 1), 1); S.monthSel = `${n.getFullYear()}-${pad(n.getMonth() + 1)}`; renderMonth(); break; }
     case 'monCur': S.monthSel = today().slice(0, 7); renderMonth(); break;
     case 'monAdd': openMonthForm('new'); break;
+    case 'ideaNew': openIdeaForm(null); break;
+    case 'ideaSave': { const i = ideaCollect(); if (!i.title) { $('#ifTitle').focus(); toast('Введите идею'); break; } await saveItem('idea', i); closeSheet(); haptic('light'); render(); toast('Идея сохранена'); break; }
+    case 'ideaDelete': if (await confirmDlg('Удалить идею?')) { const id = idf.id; closeSheet(); await removeItem('idea', id); render(); toast('Идея удалена'); } break;
+    case 'ideaToTask': {
+      const i = ideaCollect(); if (!i.title) break;
+      if (i.status === 'new') i.status = 'work';
+      await saveItem('idea', i);
+      await saveTask(newTask({title:i.title, description:i.body, date:today()}));
+      closeSheet(); render(); toast('Добавлено в задачи на сегодня'); break;
+    }
     case 'toggleHide': S.settings.hideMoney = !S.settings.hideMoney; await saveSettings(); renderFinance(); break;
     case 'txnNew': openTxnForm(null); break;
     case 'txnSave': await saveTxnForm(); break;
@@ -1884,14 +1988,14 @@ const Sync = {
     const m = await DB.get('meta', 'syncUser');
     if (m && m.value === this.userId) return;
     if (m && m.value !== this.userId) {           // на устройстве данные другого аккаунта — очищаем
-      for (const s of ['tasks','diary','photos','outbox','goals','rules','accounts','categories','txns','budgets']) await DB.clear(s);
-      await DB.del('meta', 'syncSeq'); S.tasks = []; S.diary = {}; S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = []; photoCache.clear();
+      for (const s of ['tasks','diary','photos','outbox','goals','rules','accounts','categories','txns','budgets','ideas']) await DB.clear(s);
+      await DB.del('meta', 'syncSeq'); S.tasks = []; S.diary = {}; S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = []; S.ideas = []; photoCache.clear();
     } else {
       for (const t of S.tasks) await queue('task', t.id, {...t, updatedAt: t.updatedAt || t.createdAt || Date.now()});
       for (const d of Object.values(S.diary)) await queue('diary', d.date, {...d, updatedAt: d.updatedAt || Date.now()});
       for (const g of S.goals) await queue('goal', g.id, {...g, updatedAt: g.updatedAt || g.createdAt || Date.now()});
       for (const r of S.rules) await queue('rule', r.id, {...r, updatedAt: r.updatedAt || r.createdAt || Date.now()});
-      for (const k of ['account','category','txn','budget']) for (const o of S[COLL[k]]) await queue(k, o.id, {...o, updatedAt: o.updatedAt || o.createdAt || Date.now()});
+      for (const k of FIN_KINDS) for (const o of S[COLL[k]]) await queue(k, o.id, {...o, updatedAt: o.updatedAt || o.createdAt || Date.now()});
       for (const p of await DB.all('photos')) await queue('photoUpload', p.id, null);
       if (S.settingsUpdatedAt) await queue('settings', 'settings', {value:S.settings, updatedAt:S.settingsUpdatedAt});
     }
@@ -1992,7 +2096,7 @@ async function load(){
   S.tasks = await DB.all('tasks');
   S.goals = await DB.all('goals');
   S.rules = await DB.all('rules');
-  for (const k of ['accounts','categories','txns','budgets']) S[k] = await DB.all(k);
+  for (const k of ['accounts','categories','txns','budgets','ideas']) S[k] = await DB.all(k);
   S.diary = {}; (await DB.all('diary')).forEach(d => S.diary[d.date] = d);
   const st = await DB.get('meta', 'settings'); if (st) { S.settings = {...S.settings, ...st.value}; S.settingsUpdatedAt = st.updatedAt || 0; }
 }
