@@ -108,6 +108,10 @@
 6. Проверка: откройте в браузере `https://ВАШ_ID.supabase.co/functions/v1/api/health` →
    должно быть `{"ok":true,"configured":true}`. Если `configured:false` — не задан `TELEGRAM_BOT_TOKEN`.
 
+> **Важно про адрес.** Supabase может дать функции случайный адрес (например, `hyper-function`), даже если имя — `api`.
+> Рабочий адрес виден в списке функций, в колонке **URL**. У LockedLife сейчас:
+> `https://muyrgklzrimnzipjcgil.supabase.co/functions/v1/hyper-function` (проверка: добавить `/api/health`).
+
 ### 5.5. Включение синхронизации в приложении
 Claude вписывает адрес `https://ВАШ_ID.supabase.co/functions/v1` в `index.html`
 (`<meta name="api-base" ...>`) и публикует. После этого: ⚙️ → «Синхронизация» должна показать «Включена · ЧЧ:ММ».
