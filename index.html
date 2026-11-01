@@ -405,6 +405,7 @@ textarea.field{resize:vertical;min-height:84px;line-height:1.5}
 
 <script>
 'use strict';
+const APP_VERSION = '0.7.1';   // меняется при каждой публикации — видно внизу экрана «Ещё»
 const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData !== undefined ? window.Telegram.WebApp : null;
 const $ = (s, r = document) => r.querySelector(s);
 const view = $('#view');
@@ -695,7 +696,8 @@ function renderMore(){
       ${MORE.map(([id, label, ic, desc]) => `<button class="more-item" data-tab="${id}"><span class="more-ic">${icon(ic)}</span><span class="t"><b>${label}</b><span class="sub">${desc}</span></span>${icon('right')}</button>`).join('')}
       <button class="more-item" data-act="settings"><span class="more-ic">${icon('gear')}</span><span class="t"><b>Настройки</b><span class="sub">Тема, подсказки, резервная копия</span></span>${icon('right')}</button>
     </div>
-    <div class="note" style="margin-top:16px;text-align:center">Скоро здесь появится Здоровье</div>`;
+    <div class="note" style="margin-top:16px;text-align:center">Скоро здесь появится Здоровье</div>
+    <div class="note" style="margin-top:6px;text-align:center;opacity:.6">LockedLife v${APP_VERSION}</div>`;
 }
 function render(){
   renderTabbar();
