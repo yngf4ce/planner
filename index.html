@@ -92,6 +92,56 @@ input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;min-wi
 input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value{text-align:left;margin:0}
 input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-calendar-picker-indicator{opacity:.6;filter:invert(.6)}
 html[data-theme=light] input[type=date]::-webkit-calendar-picker-indicator,html[data-theme=light] input[type=time]::-webkit-calendar-picker-indicator{filter:none}
+/* «Финансы» */
+.fin-head{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 12px}
+.fin-head .h1{font-size:26px}
+.fin-total{margin-top:12px;padding:16px}
+.fin-big{font-size:32px;font-weight:680;letter-spacing:-.02em;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.fin-others{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--text2);font-size:14px;font-variant-numeric:tabular-nums}
+.fin-net{font-size:13px;margin-top:6px}
+.fin-net.pos,.fr-v.pos{color:var(--done)} .fin-net.neg,.fr-v.neg{color:var(--miss)}
+.fin-list{margin-top:10px}
+.fin-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 14px;position:relative}
+.fin-row:active{background:var(--surface2)}
+.task-list .fin-row+.fin-row::before{content:"";position:absolute;top:0;left:62px;right:14px;height:1px;background:var(--border)}
+.fin-row.add{color:var(--accent);font-weight:600;font-size:14px}
+.fin-row.add svg.i{width:18px;height:18px;margin:0 9px}
+.fin-row.archived{opacity:.5}
+.fin-row>svg.i{color:var(--muted);width:16px;height:16px}
+.acc-tile{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-weight:700;font-size:17px;flex:none;background:var(--surface2)}
+.acc-tile.tr{color:var(--accent);background:var(--accent-soft)} .acc-tile.tr svg.i{width:17px;height:17px}
+.fr-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.fr-t b{font-weight:560;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-t .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+.fr-v{font-weight:620;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;display:flex;flex-direction:column;align-items:flex-end}
+.fr-v .sub{font-weight:400;font-size:11.5px}
+.b-bar{display:block;height:5px;margin-top:6px;max-width:170px}
+.progress-bar.over i{background:var(--miss)!important}
+.fab{position:fixed;right:max(16px,calc(50% - 264px));bottom:calc(76px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;box-shadow:0 8px 24px rgba(80,120,255,.35);z-index:9;transition:transform .12s}
+.fab:active{transform:scale(.93)} .fab svg.i{width:26px;height:26px;stroke-width:2.2}
+.fin-nav{margin:12px 0 10px}
+.fin-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.fsel{width:100%;min-width:0;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:12px;padding:10px 12px;font:inherit;font-size:14px;outline:0;-webkit-appearance:none;appearance:none}
+.fsel-big{-webkit-appearance:none;appearance:none;background:var(--surface);color:var(--text)}
+.fin-kpi{font-size:18px!important;line-height:1.3}
+.flabel{display:block;font-size:12.5px;color:var(--muted);margin:2px 2px 6px}
+.amount-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:4px 14px;margin-bottom:12px}
+.amount-row:focus-within{border-color:var(--accent)}
+.amount-row input{flex:1;min-width:0;border:0;outline:0;background:none;font-size:24px;font-weight:620;padding:8px 0;color:var(--text);font-variant-numeric:tabular-nums}
+.amount-row span{color:var(--muted);font-weight:600}
+.cat-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:7px;margin-bottom:12px}
+.cat-pick button{display:flex;align-items:center;gap:6px;padding:9px 10px;border-radius:12px;background:var(--surface);border:1px solid var(--border);font-size:13px;text-align:left;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cat-pick button span{font-size:16px}
+.cat-pick button.on{border-color:var(--c,var(--accent));background:color-mix(in srgb,var(--c,var(--accent)) 18%,var(--surface))}
+.cat-pick .cat-add{color:var(--accent);justify-content:center}
+.cat-pick .cat-add svg.i{width:15px;height:15px}
+.color-pick{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.color-pick button{width:32px;height:32px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(0,0,0,.15)}
+.color-pick button.on{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--text)}
+.emoji-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px;margin-bottom:14px}
+.emoji-pick button{height:42px;border-radius:11px;background:var(--surface);font-size:20px;border:1px solid var(--border)}
+.emoji-pick button.on{border-color:var(--accent);background:var(--accent-soft)}
+.seg button[disabled]{opacity:.45}
 /* «Месяц» */
 .mon-head{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:4px 2px 12px}
 .mon-head .h1{font-size:26px}
@@ -360,6 +410,9 @@ const P = {
   x:'<path d="M6 6l12 12M18 6L6 18"/>', arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
   undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
   repeat:'<path d="M17 2.5l3.5 3.5L17 9.5"/><path d="M3.5 11V10a4 4 0 0 1 4-4h13"/><path d="M7 21.5L3.5 18 7 14.5"/><path d="M20.5 13v1a4 4 0 0 1-4 4h-13"/>',
+  wallet:'<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3"/><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M16 13.5h1.5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff:'<path d="M3 3l18 18"/><path d="M10.6 5.6A10 10 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.6 3.4M6.6 6.7C4 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.6 0 3-.4 4.2-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
   more:'<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><circle cx="16.75" cy="16.75" r="3.25"/>'
 };
 const icon = n => `<svg class="i" viewBox="0 0 24 24">${P[n]}</svg>`;
@@ -394,7 +447,7 @@ const DB = {
   async open(){
     try {
       this.db = await new Promise((res, rej) => {
-        const r = indexedDB.open('tg-planner', 3);
+        const r = indexedDB.open('tg-planner', 4);
         r.onupgradeneeded = () => {
           const db = r.result;
           if (!db.objectStoreNames.contains('outbox')) db.createObjectStore('outbox', {keyPath:'key'});
@@ -403,13 +456,13 @@ const DB = {
           if (!db.objectStoreNames.contains('photos')) db.createObjectStore('photos', {keyPath:'id'});
           if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', {keyPath:'key'});
           if (!db.objectStoreNames.contains('goals')) db.createObjectStore('goals', {keyPath:'id'});
-          if (!db.objectStoreNames.contains('rules')) db.createObjectStore('rules', {keyPath:'id'});
+          for (const st of ['rules','accounts','categories','txns','budgets']) if (!db.objectStoreNames.contains(st)) db.createObjectStore(st, {keyPath:'id'});
         };
         r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
       });
     } catch (e) {
       console.warn('IndexedDB недоступна, данные хранятся только в памяти', e);
-      this.mem = {tasks:new Map(), diary:new Map(), photos:new Map(), meta:new Map(), outbox:new Map(), goals:new Map(), rules:new Map()};
+      this.mem = {tasks:new Map(), diary:new Map(), photos:new Map(), meta:new Map(), outbox:new Map(), goals:new Map(), rules:new Map(), accounts:new Map(), categories:new Map(), txns:new Map(), budgets:new Map()};
     }
   },
   key(store, v){ return store === 'diary' ? v.date : (store === 'meta' || store === 'outbox') ? v.key : v.id; },
@@ -428,7 +481,8 @@ const DB = {
 
 /* ---------- state ---------- */
 const S = {
-  tasks: [], goals: [], rules: [], diary: {}, monthSel: today().slice(0, 7), settings: {theme:'dark', suggestions:true, hidden:[]},
+  tasks: [], goals: [], rules: [], accounts: [], categories: [], txns: [], budgets: [], diary: {},
+  finTab: 'overview', finMonth: today().slice(0, 7), finFilter: {acc:'', cat:''}, monthSel: today().slice(0, 7), settings: {theme:'dark', suggestions:true, hidden:[], mainCurrency:'EUR', hideMoney:false},
   tab: 'day', date: today(), calYear: new Date().getFullYear(),
   calMode: 'month', calMonth: today().slice(0, 7), calSel: today(),
   statsPeriod: 'week', statsOffset: 0, diaryDate: today(), diaryQuery: ''
@@ -599,9 +653,9 @@ function applyTheme(){
 
 /* ---------- tabs ---------- */
 /* нижняя панель — максимум 5 пунктов, остальное в «Ещё» */
-const TABS = [['day','Сегодня','day'],['calendar','Календарь','calendar'],['month','Месяц','month'],['diary','Дневник','diary'],['more','Ещё','more']];
+const TABS = [['day','Сегодня','day'],['calendar','Календарь','calendar'],['month','Месяц','month'],['finance','Финансы','wallet'],['more','Ещё','more']];
 /* разделы внутри «Ещё»: [id, название, иконка, описание] */
-const MORE = [['stats','Статистика','stats','Выполнение задач по неделям, месяцам и годам']];
+const MORE = [['diary','Дневник','diary','Записи и настроение за день'],['stats','Статистика','stats','Выполнение задач по неделям, месяцам и годам']];
 const inMore = tab => MORE.some(m => m[0] === tab);
 function renderTabbar(){
   const cur = inMore(S.tab) ? 'more' : S.tab;
@@ -619,13 +673,13 @@ function renderMore(){
       ${MORE.map(([id, label, ic, desc]) => `<button class="more-item" data-tab="${id}"><span class="more-ic">${icon(ic)}</span><span class="t"><b>${label}</b><span class="sub">${desc}</span></span>${icon('right')}</button>`).join('')}
       <button class="more-item" data-act="settings"><span class="more-ic">${icon('gear')}</span><span class="t"><b>Настройки</b><span class="sub">Тема, подсказки, резервная копия</span></span>${icon('right')}</button>
     </div>
-    <div class="note" style="margin-top:16px;text-align:center">Скоро здесь появятся Финансы, Идеи и Здоровье</div>`;
+    <div class="note" style="margin-top:16px;text-align:center">Скоро здесь появятся Идеи и Здоровье</div>`;
 }
 function render(){
   renderTabbar();
-  const titles = {day:'Locked<b>Life</b>', calendar:'Календарь', month:'Месяц', stats:'Статистика', diary:'Дневник', more:'Разделы'};
+  const titles = {day:'Locked<b>Life</b>', calendar:'Календарь', month:'Месяц', finance:'Финансы', stats:'Статистика', diary:'Дневник', more:'Разделы'};
   $('#topTitle').innerHTML = titles[S.tab];
-  ({day:renderDay, calendar:renderCalendar, month:renderMonth, stats:renderStats, diary:renderDiary, more:renderMore})[S.tab]();
+  ({day:renderDay, calendar:renderCalendar, month:renderMonth, finance:renderFinance, stats:renderStats, diary:renderDiary, more:renderMore})[S.tab]();
   updateBack();
 }
 function go(tab){ window.scrollTo(0, 0); S.tab = tab; render(); view.classList.remove('fade'); void view.offsetWidth; view.classList.add('fade'); }
@@ -1072,6 +1126,350 @@ async function saveMonthForm(){
   closeSheet(); haptic('light'); render();
 }
 
+/* ---------- FINANCE ---------- */
+/* Деньги хранятся ЦЕЛЫМИ числами в минимальных единицах (центы/копейки) — без ошибок округления.
+   Остаток баланса НЕ хранится, а вычисляется: initial + доходы − расходы ± переводы.
+   У каждой операции id создаётся при открытии формы → повторное нажатие «Сохранить» не создаст дубль. */
+const CURRENCIES = ['EUR', 'USD', 'UAH'];
+const CUR_SIGN = {EUR:'€', USD:'$', UAH:'₴'};
+/* коллекции: тип записи → имя массива в S и хранилища IndexedDB */
+const COLL = {goal:'goals', rule:'rules', account:'accounts', category:'categories', txn:'txns', budget:'budgets'};
+const FIN_COLORS = ['#80A7FF','#65B99A','#E6B968','#E07A6A','#A78BFA','#F28CB1','#5CC8D7','#929BAA'];
+const FIN_EMOJI = ['🛒','🍽️','☕','🚌','⛽','🚕','✈️','🏠','💡','📱','🎮','🎬','🛍️','👕','💊','🏋️','📚','🎁','🐾','💳','💼','💰','📈','🏷️','📦'];
+const DEF_CATS = [
+  ['c-food','Продукты','🛒','#65B99A','expense'], ['c-transport','Транспорт','🚌','#80A7FF','expense'],
+  ['c-subs','Подписки','📱','#A78BFA','expense'], ['c-fun','Развлечения','🎮','#E6B968','expense'],
+  ['c-shop','Покупки','🛍️','#F28CB1','expense'], ['c-health','Здоровье','💊','#E07A6A','expense'],
+  ['c-other','Другое','📦','#929BAA','expense'],
+  ['c-salary','Зарплата','💼','#65B99A','income'], ['c-side','Подработка','💰','#80A7FF','income'],
+  ['c-gift','Подарки','🎁','#E6B968','income'], ['c-other-in','Другое','📦','#929BAA','income']
+];
+async function saveItem(kind, o){
+  const arr = COLL[kind]; o.updatedAt = Date.now();
+  const i = S[arr].findIndex(x => x.id === o.id); if (i >= 0) S[arr][i] = o; else S[arr].push(o);
+  await DB.put(arr, o); await queue(kind, o.id, o);
+}
+async function removeItem(kind, id){
+  const arr = COLL[kind]; S[arr] = S[arr].filter(x => x.id !== id);
+  await DB.del(arr, id); await queue(kind, id, null, true);
+}
+/* базовые категории: фиксированные id и updatedAt = 1, чтобы на другом устройстве не появились дубли
+   и чтобы любое ваше переименование всегда было «новее» */
+async function ensureCategories(){
+  for (const [id, name, emoji, color, kind] of DEF_CATS) {
+    if (S.categories.some(c => c.id === id)) continue;
+    const c = {id, name, emoji, color, kind, archived:false, createdAt:1, updatedAt:1};
+    S.categories.push(c); await DB.put('categories', c); await queue('category', id, c);
+  }
+}
+/* "15", "15,5", "1 250.00" → 1500, 1550, 125000; плохой ввод → null */
+function parseMoney(str, allowNeg = false){
+  let s = String(str ?? '').replace(/[\s ]/g, '').replace(',', '.');
+  let neg = false; if (allowNeg && /^[-−]/.test(s)) { neg = true; s = s.slice(1); }
+  if (!/^\d{1,9}(\.\d{0,2})?$/.test(s)) return null;
+  const [i, f = ''] = s.split('.'); const v = Number(i) * 100 + Number((f + '00').slice(0, 2));
+  if (!allowNeg && v <= 0) return null;
+  return neg ? -v : v;
+}
+const moneyInput = minor => (minor / 100).toFixed(2).replace('.', ',').replace(/,00$/, '');
+const NF = new Intl.NumberFormat('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2});
+function fmtMoney(minor, cur, opts = {}){
+  if (S.settings.hideMoney && !opts.force) return '••••';
+  const sign = minor < 0 ? '−' : (opts.sign && minor > 0 ? '+' : '');
+  return `${sign}${NF.format(Math.abs(minor) / 100)} ${CUR_SIGN[cur] || cur}`;
+}
+const mainCur = () => S.settings.mainCurrency || 'EUR';
+const accById = id => S.accounts.find(a => a.id === id);
+const catById = id => S.categories.find(c => c.id === id);
+function balances(){
+  const b = {}; for (const a of S.accounts) b[a.id] = a.initial || 0;
+  for (const t of S.txns) {
+    if (t.type === 'expense') b[t.accountId] = (b[t.accountId] || 0) - t.amount;
+    else if (t.type === 'income') b[t.accountId] = (b[t.accountId] || 0) + t.amount;
+    else if (t.type === 'transfer') { b[t.accountId] = (b[t.accountId] || 0) - t.amount; b[t.toAccountId] = (b[t.toAccountId] || 0) + (t.toAmount || t.amount); }
+  }
+  return b;
+}
+const txnCur = t => (accById(t.accountId) || {}).currency || mainCur();
+const monthTxns = mon => S.txns.filter(t => t.date.startsWith(mon));
+/* расходы по категориям за месяц в одной валюте */
+function spendByCat(mon, cur){
+  const m = {}; for (const t of monthTxns(mon)) if (t.type === 'expense' && txnCur(t) === cur) m[t.categoryId] = (m[t.categoryId] || 0) + t.amount;
+  return m;
+}
+function finDonut(segs, total, label){
+  const R = 46, W = 13, C = 2 * Math.PI * R; let acc = 0, arcs = '';
+  if (total > 0) for (const s of segs) {
+    const len = s.value / total * C; const gap = segs.length > 1 ? 2 : 0;
+    arcs += `<circle r="${R}" cx="60" cy="60" fill="none" stroke="${s.color}" stroke-width="${W}" stroke-dasharray="${Math.max(0, len - gap)} ${C}" stroke-dashoffset="${-acc}" transform="rotate(-90 60 60)"/>`;
+    acc += len;
+  }
+  return `<svg viewBox="0 0 120 120" width="124" height="124" role="img" aria-label="${esc(label)}">
+    <circle r="${R}" cx="60" cy="60" fill="none" stroke="var(--surface2)" stroke-width="${W}"/>${arcs}</svg>`;
+}
+function monthNav(mon, actPrev, actNext){
+  const [y, m] = mon.split('-').map(Number);
+  return `<div class="period-nav fin-nav">
+    <button class="icon-btn" data-act="${actPrev}" aria-label="Предыдущий месяц">${icon('left')}</button>
+    <div class="h2">${MONTHS[m - 1]} ${y}</div>
+    <button class="icon-btn" data-act="${actNext}" aria-label="Следующий месяц">${icon('right')}</button></div>`;
+}
+const shiftMonth = (mon, k) => { const [y, m] = mon.split('-').map(Number); const n = new Date(y, m - 1 + k, 1); return `${n.getFullYear()}-${pad(n.getMonth() + 1)}`; };
+const accTile = a => `<span class="acc-tile" style="background:${a.color || '#80A7FF'}22;color:${a.color || '#80A7FF'}">${esc((a.name || '?').trim()[0].toUpperCase())}</span>`;
+const catTile = c => `<span class="acc-tile" style="background:${(c && c.color) || '#929BAA'}22">${c ? c.emoji : '📦'}</span>`;
+
+function renderFinance(){
+  view.innerHTML = `
+    <div class="fin-head"><div class="h1">Финансы</div>
+      <button class="icon-btn" data-act="toggleHide" aria-label="Скрыть суммы">${icon(S.settings.hideMoney ? 'eyeOff' : 'eye')}</button></div>
+    <div class="seg">${[['overview','Обзор'],['ops','Операции'],['budgets','Бюджеты']].map(([k, l]) => `<button class="${S.finTab === k ? 'on' : ''}" data-fintab="${k}">${l}</button>`).join('')}</div>
+    <div id="finBody"></div>
+    <div style="height:64px"></div>
+    <button class="fab" data-act="txnNew" aria-label="Новая операция">${icon('plus')}</button>`;
+  ({overview:renderFinOverview, ops:renderFinOps, budgets:renderFinBudgets})[S.finTab]();
+}
+function renderFinOverview(){
+  const bal = balances(); const main = mainCur(); const mon = today().slice(0, 7);
+  const accs = S.accounts.filter(a => !a.archived).sort((a, b) => a.createdAt - b.createdAt);
+  const totals = {}; for (const a of accs) totals[a.currency] = (totals[a.currency] || 0) + (bal[a.id] || 0);
+  let net = 0; for (const t of monthTxns(mon)) if (txnCur(t) === main) { if (t.type === 'income') net += t.amount; if (t.type === 'expense') net -= t.amount; }
+  const others = CURRENCIES.filter(c => c !== main && totals[c] !== undefined);
+  const spend = spendByCat(mon, main); const spendTotal = Object.values(spend).reduce((s, v) => s + v, 0);
+  const sorted = Object.entries(spend).sort((a, b) => b[1] - a[1]);
+  const segs = sorted.slice(0, 4).map(([id, v]) => ({id, value:v, color:(catById(id) || {}).color || '#929BAA', name:(catById(id) || {}).name || 'Без категории'}));
+  const rest = sorted.slice(4).reduce((s, [, v]) => s + v, 0); if (rest) segs.push({id:'', value:rest, color:'#5A6478', name:'Остальное'});
+  const recent = S.txns.slice().sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt).slice(0, 5);
+  $('#finBody').innerHTML = `
+    <div class="card fin-total">
+      <div class="sub">Общий баланс</div>
+      <div class="fin-big">${fmtMoney(totals[main] || 0, main)}</div>
+      ${others.length ? `<div class="fin-others">${others.map(c => `<span>${fmtMoney(totals[c], c)}</span>`).join('')}</div>` : ''}
+      <div class="fin-net ${net >= 0 ? 'pos' : 'neg'}">${fmtMoney(net, main, {sign:true})} в этом месяце</div>
+    </div>
+    <div class="task-list fin-list">
+      ${accs.length ? accs.map(a => `<button class="fin-row" data-acc="${a.id}">${accTile(a)}<span class="fr-t"><b>${esc(a.name)}</b><span class="sub">${a.currency}</span></span><span class="fr-v ${(bal[a.id] || 0) < 0 ? 'neg' : ''}">${fmtMoney(bal[a.id] || 0, a.currency)}</span></button>`).join('')
+        : `<div class="empty">Балансов пока нет.<br>Создайте первый — например, Revolut или Наличные.</div>`}
+      <button class="fin-row add" data-act="accNew">${icon('plus')}<span>Добавить баланс</span></button>
+    </div>
+    <div class="card chart-card">
+      <div class="gs-top"><b>Расходы за месяц</b><b>${fmtMoney(spendTotal, main)}</b></div>
+      ${spendTotal ? `<div class="donut-wrap" style="margin-top:10px">${finDonut(segs, spendTotal, 'Расходы по категориям')}
+        <div class="donut-legend">${segs.map(s => `<div><i style="background:${s.color}"></i><span>${esc(s.name)}</span><b>${Math.round(s.value / spendTotal * 100)}%</b></div>`).join('')}</div></div>`
+        : `<div class="sub" style="margin-top:8px">В этом месяце расходов в ${main} пока нет</div>`}
+    </div>
+    <div class="section-label" style="display:flex;justify-content:space-between">Последние операции<button class="small-add" data-fintab="ops">Все</button></div>
+    <div class="task-list" style="margin-top:0">${recent.length ? recent.map(txnRow).join('') : '<div class="empty">Операций пока нет. Нажмите «+»</div>'}</div>`;
+}
+function txnRow(t){
+  const a = accById(t.accountId); const cur = txnCur(t);
+  if (t.type === 'transfer') {
+    const to = accById(t.toAccountId);
+    return `<button class="fin-row" data-txn="${t.id}"><span class="acc-tile tr">${icon('arrow')}</span>
+      <span class="fr-t"><b>Перевод</b><span class="sub">${esc(a ? a.name : '?')} → ${esc(to ? to.name : '?')}${t.note ? ' · ' + esc(t.note) : ''}</span></span>
+      <span class="fr-v">${fmtMoney(t.amount, cur)}</span></button>`;
+  }
+  const c = catById(t.categoryId);
+  return `<button class="fin-row" data-txn="${t.id}">${catTile(c)}
+    <span class="fr-t"><b>${esc(c ? c.name : 'Без категории')}</b><span class="sub">${esc(t.note || (a ? a.name : ''))}${t.note && a ? ' · ' + esc(a.name) : ''}</span></span>
+    <span class="fr-v ${t.type === 'income' ? 'pos' : ''}">${fmtMoney(t.type === 'expense' ? -t.amount : t.amount, cur, {sign:true})}</span></button>`;
+}
+function renderFinOps(){
+  const mon = S.finMonth; const f = S.finFilter;
+  const list = monthTxns(mon).filter(t => (!f.acc || t.accountId === f.acc || t.toAccountId === f.acc) && (!f.cat || t.categoryId === f.cat))
+    .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+  const sums = {}; for (const t of list) { if (t.type === 'transfer') continue; const c = txnCur(t); const s = sums[c] || (sums[c] = {inc:0, exp:0}); if (t.type === 'income') s.inc += t.amount; else s.exp += t.amount; }
+  const byDay = {}; list.forEach(t => (byDay[t.date] = byDay[t.date] || []).push(t));
+  const cats = S.categories.slice().sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name));
+  $('#finBody').innerHTML = `
+    ${monthNav(mon, 'finPrev', 'finNext')}
+    <div class="fin-filters">
+      <select id="fltAcc" class="fsel"><option value="">Все балансы</option>${S.accounts.map(a => `<option value="${a.id}" ${f.acc === a.id ? 'selected' : ''}>${esc(a.name)}${a.archived ? ' (архив)' : ''}</option>`).join('')}</select>
+      <select id="fltCat" class="fsel"><option value="">Все категории</option>${cats.map(c => `<option value="${c.id}" ${f.cat === c.id ? 'selected' : ''}>${c.emoji} ${esc(c.name)}${c.kind === 'income' ? ' (доход)' : ''}</option>`).join('')}</select>
+    </div>
+    <div class="kpis" style="margin-bottom:6px">
+      <div class="card kpi"><div class="lbl"><i style="background:var(--miss)"></i>Расходы</div><b class="fin-kpi">${Object.keys(sums).length ? Object.entries(sums).map(([c, s]) => fmtMoney(s.exp, c)).join('<br>') : fmtMoney(0, mainCur())}</b></div>
+      <div class="card kpi"><div class="lbl"><i style="background:var(--done)"></i>Доходы</div><b class="fin-kpi">${Object.keys(sums).length ? Object.entries(sums).map(([c, s]) => fmtMoney(s.inc, c)).join('<br>') : fmtMoney(0, mainCur())}</b></div>
+    </div>
+    ${Object.keys(byDay).length ? Object.keys(byDay).sort().reverse().map(d => `<div class="day-group"><div class="day-group-h"><b>${humanDate(d)}</b><span class="sub">${WD_FULL[parse(d).getDay()]}</span></div>
+      <div class="task-list" style="margin-top:0">${byDay[d].map(txnRow).join('')}</div></div>`).join('')
+      : `<div class="task-list"><div class="empty">${f.acc || f.cat ? 'Нет операций по выбранным фильтрам' : 'В этом месяце операций нет'}</div></div>`}`;
+  $('#fltAcc').addEventListener('change', e => { S.finFilter.acc = e.target.value; renderFinOps(); });
+  $('#fltCat').addEventListener('change', e => { S.finFilter.cat = e.target.value; renderFinOps(); });
+}
+function renderFinBudgets(){
+  const mon = S.finMonth; const main = mainCur(); const spend = spendByCat(mon, main);
+  const cats = S.categories.filter(c => c.kind === 'expense' && !c.archived);
+  const rows = cats.map(c => ({c, b:S.budgets.find(b => b.id === c.id), spent:spend[c.id] || 0}))
+    .sort((x, y) => (!!y.b - !!x.b) || y.spent - x.spent);
+  const limitSum = rows.reduce((s, r) => s + (r.b ? r.b.limit : 0), 0);
+  const spentSum = rows.filter(r => r.b).reduce((s, r) => s + r.spent, 0);
+  const pct = limitSum ? Math.min(100, Math.round(spentSum / limitSum * 100)) : 0;
+  $('#finBody').innerHTML = `
+    ${monthNav(mon, 'finPrev', 'finNext')}
+    <div class="card goal-sum">
+      <div class="gs-top"><b>Бюджеты месяца</b><span class="gs-pct">${limitSum ? pct + '%' : '—'}</span></div>
+      <div class="sub">${limitSum ? `Потрачено ${fmtMoney(spentSum, main)} из ${fmtMoney(limitSum, main)}` : 'Нажмите на категорию, чтобы задать лимит в месяц'}</div>
+      <div class="progress-bar${spentSum > limitSum && limitSum ? ' over' : ''}"><i style="width:${pct}%"></i></div>
+    </div>
+    <div class="task-list" style="margin-top:10px">${rows.map(({c, b, spent}) => {
+      const p = b ? Math.min(100, Math.round(spent / b.limit * 100)) : 0; const over = b && spent > b.limit;
+      return `<button class="fin-row" data-budget="${c.id}">${catTile(c)}<span class="fr-t"><b>${esc(c.name)}</b>
+        ${b ? `<span class="b-bar progress-bar${over ? ' over' : ''}"><i style="width:${p}%"></i></span>` : '<span class="sub">без лимита</span>'}</span>
+        <span class="fr-v ${over ? 'neg' : ''}">${fmtMoney(spent, main)}${b ? `<span class="sub">из ${fmtMoney(b.limit, main)}</span>` : ''}</span></button>`;
+    }).join('')}</div>
+    <div class="note" style="margin-top:8px">Бюджеты считаются по операциям в основной валюте (${main}). Её можно сменить в ⚙️ Настройках.</div>
+    <button class="btn ghost wide" style="margin-top:12px" data-act="catManage">Настроить категории</button>`;
+}
+
+/* ----- форма операции ----- */
+let ff = null;
+function openTxnForm(t, restore){
+  const accs = S.accounts.filter(a => !a.archived || (t && (a.id === t.accountId || a.id === t.toAccountId)));
+  if (!accs.length) { toast('Сначала создайте баланс'); openAccForm(null); return; }
+  const last = S.txns.slice().sort((a, b) => b.createdAt - a.createdAt)[0];
+  const defAcc = (last && accById(last.accountId) && !accById(last.accountId).archived) ? last.accountId : accs[0].id;
+  ff = restore ? {...restore} : t ? {...t, isNew:false, amountStr:moneyInput(t.amount), toAmountStr:t.toAmount ? moneyInput(t.toAmount) : ''}
+         : {id:uid(), isNew:true, type:'expense', accountId:defAcc, toAccountId:'', categoryId:'', date:today(), note:'', amountStr:'', toAmountStr:'', createdAt:Date.now()};
+  openSheet(`
+    <div class="sheet-head"><div class="h2">${ff.isNew ? 'Новая операция' : 'Операция'}</div></div>
+    <div class="seg" style="margin-bottom:12px">${[['expense','Расход'],['income','Доход'],['transfer','Перевод']].map(([k, l]) => `<button class="${ff.type === k ? 'on' : ''}" data-ftype="${k}">${l}</button>`).join('')}</div>
+    <div id="ffVar"></div>
+    <label class="flabel">Комментарий</label>
+    <input class="field" id="ffNote" placeholder="Например: Albert Heijn" maxlength="140" value="${esc(ff.note || '')}" autocomplete="off">
+    <label class="row"><span>Дата</span><input type="date" id="ffDate" value="${ff.date}"></label>
+    ${!ff.isNew ? `<div class="actions"><button class="btn ghost danger" data-act="txnDelete">Удалить операцию</button></div>` : ''}
+    <button class="btn primary wide" id="ffSaveBtn" data-act="txnSave">Сохранить</button>`, () => { ff = null; });
+  renderTxnVar();
+  if (ff.isNew && !restore) setTimeout(() => $('#ffAmount') && $('#ffAmount').focus(), 280);
+}
+function ffCollect(){
+  if (!ff) return;
+  const v = id => { const e = $('#' + id); return e ? e.value : undefined; };
+  for (const [id, k] of [['ffAmount','amountStr'],['ffToAmount','toAmountStr'],['ffAcc','accountId'],['ffTo','toAccountId'],['ffNote','note'],['ffDate','date']]) { const x = v(id); if (x !== undefined) ff[k] = x; }
+}
+function renderTxnVar(){
+  const box = $('#ffVar'); if (!box || !ff) return;
+  const bal = balances();
+  const accs = S.accounts.filter(a => !a.archived || a.id === ff.accountId || a.id === ff.toAccountId);
+  const opt = sel => accs.map(a => `<option value="${a.id}" ${sel === a.id ? 'selected' : ''}>${esc(a.name)} · ${fmtMoney(bal[a.id] || 0, a.currency)}</option>`).join('');
+  const from = accById(ff.accountId) || accs[0]; if (from) ff.accountId = from.id;
+  const isTr = ff.type === 'transfer';
+  if (isTr && (!ff.toAccountId || ff.toAccountId === ff.accountId)) { const o = accs.find(a => a.id !== ff.accountId); ff.toAccountId = o ? o.id : ''; }
+  const to = accById(ff.toAccountId); const diffCur = isTr && to && from && to.currency !== from.currency;
+  const kind = ff.type === 'income' ? 'income' : 'expense';
+  const cats = S.categories.filter(c => c.kind === kind && (!c.archived || c.id === ff.categoryId));
+  if (!isTr && !cats.some(c => c.id === ff.categoryId)) ff.categoryId = (cats.find(c => !c.archived) || {}).id || '';
+  box.innerHTML = `
+    <label class="flabel">Сумма</label>
+    <div class="amount-row"><input id="ffAmount" inputmode="decimal" placeholder="0,00" value="${esc(ff.amountStr)}" autocomplete="off"><span>${from ? from.currency : ''}</span></div>
+    <label class="flabel">${isTr ? 'Откуда' : ff.type === 'income' ? 'Зачислить на баланс' : 'Списать с баланса'}</label>
+    <select class="field fsel-big" id="ffAcc">${opt(ff.accountId)}</select>
+    ${isTr ? `<label class="flabel">Куда</label>
+      ${accs.length > 1 ? `<select class="field fsel-big" id="ffTo">${opt(ff.toAccountId)}</select>` : '<div class="note" style="margin-bottom:10px">Для перевода нужен второй баланс.</div>'}
+      ${diffCur ? `<label class="flabel">Сумма зачисления, ${to.currency}</label><div class="amount-row"><input id="ffToAmount" inputmode="decimal" placeholder="0,00" value="${esc(ff.toAmountStr)}" autocomplete="off"><span>${to.currency}</span></div>
+        <div class="note" style="margin:-4px 0 10px">Валюты разные — укажите, сколько фактически пришло.</div>` : ''}`
+    : `<label class="flabel">Категория</label>
+      <div class="cat-pick">${cats.map(c => `<button class="${ff.categoryId === c.id ? 'on' : ''}" data-fcat="${c.id}" style="--c:${c.color}"><span>${c.emoji}</span>${esc(c.name)}</button>`).join('')}
+        <button data-act="catQuick" class="cat-add">${icon('plus')}Своя</button></div>`}`;
+  $('#ffAcc').addEventListener('change', () => { ffCollect(); renderTxnVar(); });
+  const toSel = $('#ffTo'); if (toSel) toSel.addEventListener('change', () => { ffCollect(); renderTxnVar(); });
+}
+async function saveTxnForm(){
+  if (!ff || ff.saving) return;            // защита от двойного нажатия
+  ffCollect();
+  const amount = parseMoney(ff.amountStr);
+  if (!amount) { toast('Введите сумму, например 15,50'); $('#ffAmount') && $('#ffAmount').focus(); return; }
+  const from = accById(ff.accountId); if (!from) { toast('Выберите баланс'); return; }
+  if (!ff.date) { toast('Укажите дату'); return; }
+  const t = {id:ff.id, type:ff.type, amount, accountId:from.id, date:ff.date, note:(ff.note || '').trim(), createdAt:ff.createdAt || Date.now(), source:ff.source || 'app'};
+  if (ff.type === 'transfer') {
+    const to = accById(ff.toAccountId);
+    if (!to || to.id === from.id) { toast('Выберите другой баланс для зачисления'); return; }
+    t.toAccountId = to.id;
+    if (to.currency !== from.currency) { const ta = parseMoney(ff.toAmountStr); if (!ta) { toast('Введите сумму зачисления'); return; } t.toAmount = ta; }
+  } else {
+    if (!catById(ff.categoryId)) { toast('Выберите категорию'); return; }
+    t.categoryId = ff.categoryId;
+  }
+  ff.saving = true; const btn = $('#ffSaveBtn'); if (btn) btn.disabled = true;
+  await saveItem('txn', t);
+  closeSheet(); haptic('success'); render();
+  toast(t.type === 'transfer' ? 'Перевод сохранён' : `${t.type === 'income' ? 'Доход' : 'Расход'} ${fmtMoney(amount, from.currency, {force:true})} сохранён`);
+}
+
+/* ----- форма баланса ----- */
+let af = null;
+function openAccForm(a){
+  const bal = balances(); const hasTx = a && S.txns.some(t => t.accountId === a.id || t.toAccountId === a.id);
+  af = {id: a ? a.id : uid(), isNew: !a, color: a ? a.color : FIN_COLORS[S.accounts.length % FIN_COLORS.length], currency: a ? a.currency : mainCur(), hasTx};
+  openSheet(`
+    <div class="sheet-head"><div class="h2">${a ? 'Баланс' : 'Новый баланс'}</div></div>
+    <input class="field title" id="afName" placeholder="Например: Revolut, Наличные" maxlength="40" value="${esc(a ? a.name : '')}" autocomplete="off">
+    <label class="flabel">Валюта${hasTx ? ' (нельзя сменить — по балансу уже есть операции)' : ''}</label>
+    <div class="seg" style="margin-bottom:12px">${CURRENCIES.map(c => `<button class="${af.currency === c ? 'on' : ''}" data-afcur="${c}" ${hasTx ? 'disabled' : ''}>${CUR_SIGN[c]} ${c}</button>`).join('')}</div>
+    <label class="flabel">${a ? 'Текущий остаток' : 'Начальный остаток'}</label>
+    <div class="amount-row"><input id="afBal" inputmode="decimal" placeholder="0,00" value="${a ? moneyInput(bal[a.id] || 0) : ''}" autocomplete="off"><span id="afCur">${af.currency}</span></div>
+    ${a ? '<div class="note" style="margin:-4px 0 10px">Если остаток не совпадает с банком — впишите точную сумму, история операций не изменится.</div>' : ''}
+    <label class="flabel">Цвет</label>
+    <div class="color-pick">${FIN_COLORS.map(c => `<button class="${af.color === c ? 'on' : ''}" data-afcolor="${c}" style="background:${c}" aria-label="Цвет"></button>`).join('')}</div>
+    ${a ? `<div class="actions">
+      <button class="btn ghost" data-act="accArchive">${a.archived ? 'Вернуть из архива' : 'В архив'}</button>
+      ${!hasTx ? '<button class="btn ghost danger" data-act="accDelete">Удалить</button>' : ''}</div>` : ''}
+    <button class="btn primary wide" data-act="accSave">${a ? 'Сохранить' : 'Создать'}</button>`, () => { af = null; });
+  if (!a) setTimeout(() => $('#afName') && $('#afName').focus(), 280);
+}
+async function saveAccForm(){
+  const name = $('#afName').value.trim(); if (!name) { $('#afName').focus(); toast('Введите название'); return; }
+  const raw = $('#afBal').value.trim(); const target = raw === '' ? 0 : parseMoney(raw, true);
+  if (target === null) { toast('Проверьте сумму, например 1250,00'); return; }
+  const prev = accById(af.id);
+  const a = prev ? {...prev} : {id:af.id, archived:false, initial:0, createdAt:Date.now()};
+  Object.assign(a, {name, currency:af.currency, color:af.color});
+  const current = prev ? (balances()[a.id] || 0) : 0;
+  a.initial = (a.initial || 0) + (target - current);   // правим начальный остаток, чтобы текущий стал = введённому
+  await saveItem('account', a); closeSheet(); haptic('light'); render(); toast(prev ? 'Баланс сохранён' : 'Баланс создан');
+}
+
+/* ----- бюджет ----- */
+function openBudgetForm(catId){
+  const c = catById(catId); const b = S.budgets.find(x => x.id === catId);
+  openSheet(`
+    <div class="sheet-head"><div class="h2">${c.emoji} ${esc(c.name)}</div></div>
+    <label class="flabel">Лимит в месяц, ${mainCur()}</label>
+    <div class="amount-row"><input id="bfLimit" inputmode="decimal" placeholder="Без лимита" value="${b ? moneyInput(b.limit) : ''}" autocomplete="off"><span>${mainCur()}</span></div>
+    <div class="note" style="margin:-4px 0 12px">Оставьте пустым, чтобы убрать лимит.</div>
+    <button class="btn primary wide" data-act="budgetSave" data-cat="${catId}">Сохранить</button>`);
+  setTimeout(() => $('#bfLimit') && $('#bfLimit').focus(), 280);
+}
+
+/* ----- категории ----- */
+let cf = null;
+function openCatManage(){
+  const g = kind => S.categories.filter(c => c.kind === kind).sort((a, b) => a.archived - b.archived || a.name.localeCompare(b.name));
+  const list = kind => g(kind).map(c => `<button class="fin-row${c.archived ? ' archived' : ''}" data-catedit="${c.id}">${catTile(c)}<span class="fr-t"><b>${esc(c.name)}</b>${c.archived ? '<span class="sub">в архиве</span>' : ''}</span>${icon('right')}</button>`).join('');
+  openSheet(`
+    <div class="sheet-head"><div class="h2">Категории</div></div>
+    <div class="section-label" style="margin-top:0">Расходы</div><div class="task-list" style="margin-top:0">${list('expense')}</div>
+    <div class="section-label">Доходы</div><div class="task-list" style="margin-top:0">${list('income')}</div>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn ghost" data-catnew="expense">${icon('plus')} Расход</button>
+      <button class="btn ghost" data-catnew="income">${icon('plus')} Доход</button></div>`);
+}
+function openCatForm(c, kind, back){
+  cf = c ? {...c, back} : {id:uid(), isNew:true, kind, emoji:'🏷️', color:FIN_COLORS[S.categories.length % FIN_COLORS.length], name:'', archived:false, back};
+  openSheet(`
+    <div class="sheet-head"><div class="h2">${c ? 'Категория' : cf.kind === 'income' ? 'Новая категория дохода' : 'Новая категория расхода'}</div></div>
+    <input class="field title" id="cfName" placeholder="Название" maxlength="30" value="${esc(cf.name)}" autocomplete="off">
+    <label class="flabel">Иконка</label>
+    <div class="emoji-pick">${FIN_EMOJI.map(e => `<button class="${cf.emoji === e ? 'on' : ''}" data-cfemoji="${e}">${e}</button>`).join('')}</div>
+    <label class="flabel">Цвет</label>
+    <div class="color-pick">${FIN_COLORS.map(col => `<button class="${cf.color === col ? 'on' : ''}" data-cfcolor="${col}" style="background:${col}" aria-label="Цвет"></button>`).join('')}</div>
+    ${c ? `<div class="actions"><button class="btn ghost" data-act="catArchive">${c.archived ? 'Вернуть из архива' : 'В архив'}</button></div>
+      <div class="note" style="margin:-4px 0 10px">Архивная категория не предлагается в новых операциях, старые операции остаются.</div>` : ''}
+    <button class="btn primary wide" data-act="catSave">${c ? 'Сохранить' : 'Создать'}</button>`, () => { cf = null; });
+  if (!c) setTimeout(() => $('#cfName') && $('#cfName').focus(), 280);
+}
+
 /* ---------- STATS ---------- */
 function periodRange(){
   const now = parse(today()); const off = S.statsOffset; const p = S.statsPeriod;
@@ -1226,6 +1624,9 @@ function openSettings(){
     <div class="set-group">
       <button class="set-row" data-act="syncNow"><span id="syncStatus">${esc(Sync.statusText())}</span><span class="small-add">Обновить</span></button>
     </div>
+    <div class="section-label">Основная валюта</div>
+    <div class="seg" style="margin-bottom:6px">${CURRENCIES.map(c => `<button class="${mainCur() === c ? 'on' : ''}" data-setcur="${c}">${CUR_SIGN[c]} ${c}</button>`).join('')}</div>
+    <div class="note" style="margin-bottom:6px">Используется для общего баланса, бюджетов и диаграммы расходов. Курсы валют не пересчитываются.</div>
     <div class="section-label">Тема</div>
     <div class="seg" style="margin-bottom:16px">${[['auto','Как в Telegram'],['light','Светлая'],['dark','Тёмная']].map(([k,l]) => `<button class="${th === k ? 'on' : ''}" data-settheme="${k}">${l}</button>`).join('')}</div>
     <div class="set-group">
@@ -1244,7 +1645,7 @@ function openSettings(){
 }
 async function exportData(){
   const photos = await DB.all('photos');
-  const data = {app:'tg-planner', version:2, exportedAt:new Date().toISOString(), settings:S.settings, tasks:S.tasks, goals:S.goals, rules:S.rules, diary:Object.values(S.diary), photos};
+  const data = {app:'tg-planner', version:2, exportedAt:new Date().toISOString(), settings:S.settings, tasks:S.tasks, goals:S.goals, rules:S.rules, accounts:S.accounts, categories:S.categories, txns:S.txns, budgets:S.budgets, diary:Object.values(S.diary), photos};
   const name = `planner-backup-${today()}.json`;
   const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
   try {
@@ -1262,8 +1663,9 @@ async function wipeAll(){
   for (const p of await DB.all('photos')) { await DB.del('outbox', `photoUpload:${p.id}`); await queue('photoDelete', p.id, null, true); }
   for (const g of S.goals) await queue('goal', g.id, null, true);
   for (const r of S.rules) await queue('rule', r.id, null, true);
-  for (const s of ['tasks','diary','photos','goals','rules']) await DB.clear(s);
-  S.goals = []; S.rules = [];
+  for (const k of ['account','category','txn','budget']) for (const o of S[COLL[k]]) await queue(k, o.id, null, true);
+  for (const s of ['tasks','diary','photos','goals','rules','accounts','categories','txns','budgets']) await DB.clear(s);
+  S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = [];
   S.tasks = []; S.diary = {}; photoCache.clear();
 }
 async function importData(file){
@@ -1276,6 +1678,7 @@ async function importData(file){
     for (const t of data.tasks) await saveTask(t);
     for (const g of data.goals || []) await saveGoal(g);
     for (const r of data.rules || []) await saveRule(r);
+    for (const k of ['account','category','txn','budget']) for (const o of data[COLL[k]] || []) await saveItem(k, o);
     for (const d of data.diary || []) { const e = {...d, updatedAt: Date.now()}; await DB.put('diary', e); await queue('diary', e.date, e); }
     if (data.settings) { S.settings = {...S.settings, ...data.settings}; await saveSettings(); }
     photoCache.clear(); await load(); applyTheme(); closeSheet(); render(); toast('Данные восстановлены');
@@ -1284,7 +1687,7 @@ async function importData(file){
 
 /* ---------- events ---------- */
 document.addEventListener('click', async e => {
-  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view],[data-calmode],[data-calsel],[data-calpick],[data-rcheck],[data-rule],[data-goal],[data-gcheck],[data-gplus],[data-rday],[data-rpreset]');
+  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view],[data-calmode],[data-calsel],[data-calpick],[data-rcheck],[data-rule],[data-goal],[data-gcheck],[data-gplus],[data-rday],[data-rpreset],[data-fintab],[data-acc],[data-txn],[data-budget],[data-ftype],[data-fcat],[data-afcur],[data-afcolor],[data-catedit],[data-catnew],[data-cfemoji],[data-cfcolor],[data-setcur]');
   if (!el) return;
   if (longPressFired) { longPressFired = false; return; }
   const ds = el.dataset;
@@ -1301,6 +1704,19 @@ document.addEventListener('click', async e => {
   if (ds.goal) { const g = S.goals.find(x => x.id === ds.goal); if (g) openMonthForm('goal', g); return; }
   if (ds.rday) { const i = Number(ds.rday); mfCollect(); mf.days = mf.days.includes(i) ? mf.days.filter(x => x !== i) : [...mf.days, i]; haptic('light'); renderMfVar(); return; }
   if (ds.rpreset) { mfCollect(); mf.days = ({all:DAY_ALL, work:[0,1,2,3,4], weekend:[5,6]})[ds.rpreset].slice(); haptic('light'); renderMfVar(); return; }
+  if (ds.fintab) { S.finTab = ds.fintab; if (S.tab !== 'finance') go('finance'); else { renderFinance(); window.scrollTo(0, 0); } return; }
+  if (ds.acc) { const a = accById(ds.acc); if (a) openAccForm(a); return; }
+  if (ds.txn) { const t = S.txns.find(x => x.id === ds.txn); if (t) openTxnForm(t); return; }
+  if (ds.budget) { openBudgetForm(ds.budget); return; }
+  if (ds.ftype) { ffCollect(); ff.type = ds.ftype; document.querySelectorAll('[data-ftype]').forEach(b => b.classList.toggle('on', b.dataset.ftype === ff.type)); haptic('light'); renderTxnVar(); return; }
+  if (ds.fcat) { ffCollect(); ff.categoryId = ds.fcat; document.querySelectorAll('[data-fcat]').forEach(b => b.classList.toggle('on', b.dataset.fcat === ff.categoryId)); haptic('light'); return; }
+  if (ds.afcur) { if (af.hasTx) return; af.currency = ds.afcur; document.querySelectorAll('[data-afcur]').forEach(b => b.classList.toggle('on', b.dataset.afcur === af.currency)); $('#afCur').textContent = af.currency; return; }
+  if (ds.afcolor) { af.color = ds.afcolor; document.querySelectorAll('[data-afcolor]').forEach(b => b.classList.toggle('on', b.dataset.afcolor === af.color)); return; }
+  if (ds.catedit) { const c = catById(ds.catedit); closeSheet(); setTimeout(() => openCatForm(c, null, 'manage'), 180); return; }
+  if (ds.catnew) { const k = ds.catnew; closeSheet(); setTimeout(() => openCatForm(null, k, 'manage'), 180); return; }
+  if (ds.cfemoji) { cf.emoji = ds.cfemoji; document.querySelectorAll('[data-cfemoji]').forEach(b => b.classList.toggle('on', b.dataset.cfemoji === cf.emoji)); return; }
+  if (ds.cfcolor) { cf.color = ds.cfcolor; document.querySelectorAll('[data-cfcolor]').forEach(b => b.classList.toggle('on', b.dataset.cfcolor === cf.color)); return; }
+  if (ds.setcur) { S.settings.mainCurrency = ds.setcur; await saveSettings(); openSettings(); render(); return; }
   if (ds.day) { S.date = ds.day; go('day'); return; }
   if (ds.calmode) { S.calMode = ds.calmode; if (ds.calmode === 'year') S.calYear = Number(S.calMonth.slice(0, 4)); renderCalendar(); return; }
   if (ds.calsel) { S.calSel = ds.calsel; haptic('light'); renderCalMonth(); return; }
@@ -1343,6 +1759,33 @@ document.addEventListener('click', async e => {
     case 'monPrev': case 'monNext': { const [y, m] = S.monthSel.split('-').map(Number); const n = new Date(y, m - 1 + (ds.act === 'monPrev' ? -1 : 1), 1); S.monthSel = `${n.getFullYear()}-${pad(n.getMonth() + 1)}`; renderMonth(); break; }
     case 'monCur': S.monthSel = today().slice(0, 7); renderMonth(); break;
     case 'monAdd': openMonthForm('new'); break;
+    case 'toggleHide': S.settings.hideMoney = !S.settings.hideMoney; await saveSettings(); renderFinance(); break;
+    case 'txnNew': openTxnForm(null); break;
+    case 'txnSave': await saveTxnForm(); break;
+    case 'txnDelete': if (await confirmDlg('Удалить операцию? Остаток баланса пересчитается.')) { const id = ff.id; closeSheet(); await removeItem('txn', id); render(); toast('Операция удалена'); } break;
+    case 'accNew': openAccForm(null); break;
+    case 'accSave': await saveAccForm(); break;
+    case 'accArchive': { const a = accById(af.id); if (a) { a.archived = !a.archived; await saveItem('account', a); closeSheet(); render(); toast(a.archived ? 'Баланс в архиве' : 'Баланс возвращён'); } break; }
+    case 'accDelete': if (await confirmDlg('Удалить баланс?')) { const id = af.id; closeSheet(); await removeItem('account', id); render(); toast('Баланс удалён'); } break;
+    case 'finPrev': S.finMonth = shiftMonth(S.finMonth, -1); renderFinance(); break;
+    case 'finNext': S.finMonth = shiftMonth(S.finMonth, 1); renderFinance(); break;
+    case 'catManage': openCatManage(); break;
+    case 'catQuick': { ffCollect(); const snap = {...ff}; closeSheet(); setTimeout(() => openCatForm(null, snap.type === 'income' ? 'income' : 'expense', {txn:snap}), 180); break; }
+    case 'catSave': {
+      const name = $('#cfName').value.trim(); if (!name) { $('#cfName').focus(); toast('Введите название'); break; }
+      const {back, isNew, ...c} = cf; c.name = name; if (!c.createdAt) c.createdAt = Date.now();
+      await saveItem('category', c); closeSheet(); render();
+      if (back && back.txn) setTimeout(() => openTxnForm(null, {...back.txn, categoryId:c.id}), 180);
+      else if (back === 'manage') setTimeout(openCatManage, 180);
+      toast(isNew ? 'Категория создана' : 'Категория сохранена'); break;
+    }
+    case 'catArchive': { const c = catById(cf.id); if (c) { c.archived = !c.archived; await saveItem('category', c); closeSheet(); render(); setTimeout(openCatManage, 180); } break; }
+    case 'budgetSave': {
+      const raw = $('#bfLimit').value.trim(); const id = ds.cat;
+      if (!raw) { if (S.budgets.some(b => b.id === id)) await removeItem('budget', id); closeSheet(); render(); toast('Лимит убран'); break; }
+      const limit = parseMoney(raw); if (!limit) { toast('Проверьте сумму'); break; }
+      await saveItem('budget', {id, categoryId:id, limit, createdAt:Date.now()}); closeSheet(); render(); toast('Лимит сохранён'); break;
+    }
     case 'mfRepeat': mfCollect(); mf.repeat = !mf.repeat; $('#mfRepTg').classList.toggle('on', mf.repeat); haptic('light'); renderMfVar(); break;
     case 'mfNoEnd': mfCollect(); mf.end = ''; renderMfVar(); break;
     case 'mfMinus': case 'mfPlus': { mf.progress = Math.max(0, Math.min(Number(mf.target) || 0, mf.progress + (ds.act === 'mfPlus' ? 1 : -1))); $('#mfProg').textContent = mf.progress; break; }
@@ -1441,13 +1884,14 @@ const Sync = {
     const m = await DB.get('meta', 'syncUser');
     if (m && m.value === this.userId) return;
     if (m && m.value !== this.userId) {           // на устройстве данные другого аккаунта — очищаем
-      for (const s of ['tasks','diary','photos','outbox','goals','rules']) await DB.clear(s);
-      await DB.del('meta', 'syncSeq'); S.tasks = []; S.diary = {}; S.goals = []; S.rules = []; photoCache.clear();
+      for (const s of ['tasks','diary','photos','outbox','goals','rules','accounts','categories','txns','budgets']) await DB.clear(s);
+      await DB.del('meta', 'syncSeq'); S.tasks = []; S.diary = {}; S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = []; photoCache.clear();
     } else {
       for (const t of S.tasks) await queue('task', t.id, {...t, updatedAt: t.updatedAt || t.createdAt || Date.now()});
       for (const d of Object.values(S.diary)) await queue('diary', d.date, {...d, updatedAt: d.updatedAt || Date.now()});
       for (const g of S.goals) await queue('goal', g.id, {...g, updatedAt: g.updatedAt || g.createdAt || Date.now()});
       for (const r of S.rules) await queue('rule', r.id, {...r, updatedAt: r.updatedAt || r.createdAt || Date.now()});
+      for (const k of ['account','category','txn','budget']) for (const o of S[COLL[k]]) await queue(k, o.id, {...o, updatedAt: o.updatedAt || o.createdAt || Date.now()});
       for (const p of await DB.all('photos')) await queue('photoUpload', p.id, null);
       if (S.settingsUpdatedAt) await queue('settings', 'settings', {value:S.settings, updatedAt:S.settingsUpdatedAt});
     }
@@ -1475,7 +1919,7 @@ const Sync = {
     try {
       const out = await DB.all('outbox');
       await this.pushPhotos(out.filter(o => o.kind === 'photoUpload' || o.kind === 'photoDelete'));
-      const recs = out.filter(o => ['task','diary','settings','goal','rule'].includes(o.kind)).slice(0, 500);
+      const recs = out.filter(o => o.kind === 'task' || o.kind === 'diary' || o.kind === 'settings' || COLL[o.kind]).slice(0, 500);
       const sm = await DB.get('meta', 'syncSeq'); const since = sm ? sm.value : 0;
       const r = await fetch(`${API_BASE}/api/sync`, {method:'POST', headers:this.headers({'Content-Type':'application/json'}),
         body: JSON.stringify({since, changes: recs.map(o => ({kind:o.kind, id:o.id, updatedAt:o.updatedAt, deleted:!!o.deleted, data:o.data}))})});
@@ -1515,8 +1959,8 @@ const Sync = {
         if (local && (local.updatedAt || 0) >= c.updatedAt) continue;
         if (c.deleted) { if (local) { delete S.diary[c.id]; await DB.del('diary', c.id); changed = true; } }
         else { const e = {...c.data, updatedAt:c.updatedAt}; S.diary[c.id] = e; await DB.put('diary', e); changed = true; }
-      } else if (c.kind === 'goal' || c.kind === 'rule') {
-        const arr = c.kind === 'goal' ? 'goals' : 'rules';   // имя массива в S и хранилища в IndexedDB совпадают
+      } else if (COLL[c.kind]) {
+        const arr = COLL[c.kind];   // имя массива в S и хранилища в IndexedDB совпадают
         const local = S[arr].find(x => x.id === c.id);
         if (local && (local.updatedAt || 0) >= c.updatedAt) continue;
         if (c.deleted) { if (local) { S[arr] = S[arr].filter(x => x.id !== c.id); await DB.del(arr, c.id); changed = true; } }
@@ -1548,6 +1992,7 @@ async function load(){
   S.tasks = await DB.all('tasks');
   S.goals = await DB.all('goals');
   S.rules = await DB.all('rules');
+  for (const k of ['accounts','categories','txns','budgets']) S[k] = await DB.all(k);
   S.diary = {}; (await DB.all('diary')).forEach(d => S.diary[d.date] = d);
   const st = await DB.get('meta', 'settings'); if (st) { S.settings = {...S.settings, ...st.value}; S.settingsUpdatedAt = st.updatedAt || 0; }
 }
@@ -1563,6 +2008,7 @@ async function load(){
   await DB.open(); await load();
   // однократный переход на новый дизайн: тёмная тема Midnight Blue по умолчанию
   if (!S.settings.designV) { S.settings.theme = 'dark'; S.settings.designV = 1; await saveSettings(); }
+  await ensureCategories();
   applyTheme(); render();
   Sync.init();
   if (Sync.enabled) {
