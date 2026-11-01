@@ -17,7 +17,8 @@ const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") ?? "";
 const ALLOWED_IDS = (Deno.env.get("ALLOWED_TELEGRAM_IDS") ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 const MAX_AGE_SEC = 3 * 24 * 3600; // подпись Telegram действительна 3 дня
-const KINDS = new Set(["task", "diary", "settings", "goal", "rule"]);
+// тип записи: латинские буквы и «_», 2–24 символа (task, goal, txn, account, idea…) — новые разделы не требуют правки сервера
+const KIND_RE = /^[a-z_]{2,24}$/;
 const MAX_CHANGES = 500;
 const MAX_RECORD_BYTES = 200_000;
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -79,7 +80,7 @@ async function verifyInitData(initData: string): Promise<number | null> {
 /* ---------- синхронизация ---------- */
 type Change = { kind: string; id: string; updatedAt: number; deleted: boolean; data: unknown };
 function validChange(c: any): c is Change {
-  return c && typeof c === "object" && KINDS.has(c.kind) &&
+  return c && typeof c === "object" && typeof c.kind === "string" && KIND_RE.test(c.kind) &&
     typeof c.id === "string" && c.id.length > 0 && c.id.length <= 100 &&
     Number.isFinite(c.updatedAt) && c.updatedAt > 0 &&
     (c.deleted === true || (c.data !== undefined && JSON.stringify(c.data).length <= MAX_RECORD_BYTES));
