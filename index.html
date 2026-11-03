@@ -142,6 +142,8 @@ html[data-theme=light] input[type=date]::-webkit-calendar-picker-indicator,html[
 .emoji-pick button{height:42px;border-radius:11px;background:var(--surface);font-size:20px;border:1px solid var(--border)}
 .emoji-pick button.on{border-color:var(--accent);background:var(--accent-soft)}
 .seg button[disabled]{opacity:.45}
+/* номер недели */
+.wk{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:7px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:600;vertical-align:1px;white-space:nowrap}
 /* перетаскивание */
 .drag-h{width:30px;height:30px;display:grid;place-items:center;color:var(--muted);opacity:.7;flex:none;margin:-4px -6px -4px -2px;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none}
 .drag-h svg.i{width:18px;height:18px}
@@ -411,7 +413,7 @@ textarea.field{resize:vertical;min-height:84px;line-height:1.5}
 
 <script>
 'use strict';
-const APP_VERSION = '0.9.0';   // меняется при каждой публикации — видно внизу экрана «Ещё»
+const APP_VERSION = '0.9.1';   // меняется при каждой публикации — видно внизу экрана «Ещё»
 const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData !== undefined ? window.Telegram.WebApp : null;
 const $ = (s, r = document) => r.querySelector(s);
 const view = $('#view');
@@ -465,6 +467,13 @@ function humanDate(s){
   if (s === addDays(t,-1)) return 'Вчера';
   const d = parse(s);
   return `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}${d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : ''}`;
+}
+/* номер недели по ISO 8601 (неделя начинается в понедельник; 1-я неделя — та, где первый четверг года) */
+function isoWeek(s){
+  const d = parse(s); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  t.setUTCDate(t.getUTCDate() + 3 - (t.getUTCDay() + 6) % 7);           // четверг этой недели
+  const y1 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return Math.floor((t - y1) / 864e5 / 7) + 1;
 }
 function longDate(s){ const d = parse(s); return `${WD_FULL[d.getDay()]}, ${d.getDate()} ${MONTHS_GEN[d.getMonth()]} ${d.getFullYear()}`; }
 function shortDate(s){ const d = parse(s); return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`; }
@@ -735,7 +744,7 @@ function taskRow(t, opts = {}){
       ${meta.length ? `<div class="task-meta">${meta.join('')}</div>` : ''}
     </div>
     ${t.recurring ? `<span class="star rep-ic" title="Повторяется">${icon('repeat')}</span>` : `<button class="star${t.starred ? ' on' : ''}" data-star="${t.id}" aria-label="Важное">${icon('star')}</button>`}
-    ${opts.drag ? `<span class="drag-h" data-act="dragNoop" aria-label="Перетащить">${icon('grip')}</span>` : ''}
+    ${opts.drag ? DRAG_H : ''}
   </div>`;
 }
 
@@ -758,7 +767,9 @@ const SLOTS = [['Утро', t => t < '12:00'], ['День', t => t >= '12:00' &&
 /* ручной порядок (перетаскивание за «≡»): поле order у задачи, у повтора — order у правила.
    Задачи с order идут в этом порядке, новые (без order) — в конце группы в обычной сортировке. */
 const ordOf = t => t.recurring ? (S.rules.find(r => r.id === t.ruleId) || {}).order : t.order;
-function applyManual(list){
+const DRAG_H = `<span class="drag-h" data-act="dragNoop" aria-label="Перетащить">${'<svg class="i" viewBox="0 0 24 24"><path d="M5 8h14M5 12h14M5 16h14"/></svg>'}</span>`;
+function applyManual(list, getOrd = ordOf){
+  const ordOf = getOrd;
   if (!list.some(t => ordOf(t) != null)) return list;
   const idx = new Map(list.map((t, i) => [t, i]));
   return list.slice().sort((a, b) => {
@@ -791,7 +802,7 @@ function renderDay(){
     <div class="today-head">
       <div class="th-text">
         ${d === today() ? `<div class="greet">${esc(greeting())}</div>` : ''}
-        <div class="h1">${humanDate(d)}</div><div class="sub">${longDate(d)}</div>
+        <div class="h1">${humanDate(d)}</div><div class="sub">${longDate(d)} <span class="wk">${isoWeek(d)}-я неделя</span></div>
       </div>
       ${active.length ? ringSVG(pct) : ''}
     </div>
@@ -1029,6 +1040,7 @@ function goalRow(g){
       ${g.description ? `<div class="task-meta"><span>${icon('note')}</span></div>` : ''}
     </div>
     ${g.target && !g.done ? `<button class="plus1" data-gplus="${g.id}" aria-label="Плюс один">+1</button>` : ''}
+    ${DRAG_H}
   </div>`;
 }
 function ruleRow(r, from, to){
@@ -1043,13 +1055,14 @@ function ruleRow(r, from, to){
       <div class="task-meta"><span class="m-rep">${icon('repeat')}${esc(daysText(r.days))}${r.time ? ' · ' + esc(r.time) : ''}</span>
         ${r.paused ? '<span class="m-post">на паузе</span>' : ''}${past.length ? `<span>${done} из ${past.length} дн.</span>` : ''}${r.end ? `<span>до ${esc(shortDate(r.end))}</span>` : ''}</div>
     </div>
+    ${DRAG_H}
   </div>`;
 }
 function renderMonth(){
   const mon = S.monthSel; const {y, m, from, to} = monthBounds(mon); const t0 = today(); const isCur = mon === t0.slice(0, 7);
-  const goals = S.goals.filter(g => g.month === mon).sort((a, b) => a.done - b.done || a.createdAt - b.createdAt);
+  const goals = applyManual(S.goals.filter(g => g.month === mon).sort((a, b) => a.done - b.done || a.createdAt - b.createdAt), g => g.order);
   const gDone = goals.filter(g => g.done).length; const gPct = goals.length ? Math.round(gDone / goals.length * 100) : 0;
-  const rules = S.rules.filter(r => r.start <= to && (!r.end || r.end >= from)).sort((a, b) => (a.paused - b.paused) || a.createdAt - b.createdAt);
+  const rules = applyManual(S.rules.filter(r => r.start <= to && (!r.end || r.end >= from)).sort((a, b) => (a.paused - b.paused) || a.createdAt - b.createdAt), r => r.morder);
   const dated = S.tasks.filter(x => x.date >= from && x.date <= to && x.status !== 'postponed' && (!isCur || x.date >= t0));
   const overdue = isCur ? sortTasks(S.tasks.filter(x => x.date < t0 && x.date >= addDays(t0, -14) && x.status === 'pending')) : [];
   const groups = {}; dated.forEach(x => (groups[x.date] = groups[x.date] || []).push(x));
@@ -1068,9 +1081,9 @@ function renderMonth(){
       <div class="sub">${gDone} из ${goals.length}</div>
       <div class="progress-bar"><i style="width:${gPct}%"></i></div>
     </div>
-    <div class="task-list" style="margin-top:10px">${goals.length ? goals.map(goalRow).join('') : '<div class="empty">Целей на этот месяц пока нет</div>'}</div>
+    <div class="task-list" style="margin-top:10px" data-sortable="goals">${goals.length ? goals.map(goalRow).join('') : '<div class="empty">Целей на этот месяц пока нет</div>'}</div>
     <div class="section-label">Повторяющиеся</div>
-    <div class="task-list" style="margin-top:0">${rules.length ? rules.map(r => ruleRow(r, from, to)).join('') : '<div class="empty">Нет повторяющихся задач.<br>Включите «Повторять» при добавлении.</div>'}</div>
+    <div class="task-list" style="margin-top:0" data-sortable="mrules">${rules.length ? rules.map(r => ruleRow(r, from, to)).join('') : '<div class="empty">Нет повторяющихся задач.<br>Включите «Повторять» при добавлении.</div>'}</div>
     <button class="btn primary wide" style="margin-top:14px" data-act="monAdd">${icon('plus')} Добавить цель или задачу</button>`;
   if (overdue.length) html += `<div class="section-label">Просрочено за 2 недели</div><div class="task-list" style="margin-top:0">${overdue.map(t => taskRow(t, {showDate:true})).join('')}</div>`;
   html += `<div class="section-label">Задачи с датой</div>`;
@@ -1079,7 +1092,7 @@ function renderMonth(){
     const dt = parse(d);
     html += `<div class="day-group"><div class="day-group-h"><div><b>${humanDate(d)}</b><span class="sub">${WD_FULL[dt.getDay()]}</span></div>
       <button class="small-add" data-plan="${d}">${icon('plus')}Добавить</button></div>
-      <div class="task-list" style="margin-top:0">${sortTasks(groups[d]).map(t => taskRow(t)).join('')}</div></div>`;
+      <div class="task-list" style="margin-top:0" data-sortable>${applyManual(sortTasks(groups[d])).map(t => taskRow(t, {drag:true})).join('')}</div></div>`;
   }
   view.innerHTML = html;
 }
@@ -1988,10 +2001,14 @@ async function endDrag(){
   const {row, list, swapped} = drag; drag = null;
   row.classList.remove('dragging'); row.style.transform = '';
   if (!swapped) return;
-  const rows = [...list.querySelectorAll(':scope > .task')];
+  const rows = [...list.querySelectorAll(':scope > .task')]; const kind = list.dataset.sortable;
   for (let i = 0; i < rows.length; i++) {
     const el = rows[i];
-    if (el.dataset.rule) { const r = S.rules.find(x => x.id === el.dataset.rule); if (r && r.order !== i) { r.order = i; await saveRule(r); } }
+    if (el.dataset.goal) { const g = S.goals.find(x => x.id === el.dataset.goal); if (g && g.order !== i) { g.order = i; await saveGoal(g); } }
+    else if (el.dataset.rule) {
+      const r = S.rules.find(x => x.id === el.dataset.rule); const key = kind === 'mrules' ? 'morder' : 'order';  // у «Месяца» свой порядок повторов
+      if (r && r[key] !== i) { r[key] = i; await saveRule(r); }
+    }
     else { const t = S.tasks.find(x => x.id === el.dataset.task); if (t && t.order !== i) { t.order = i; await saveTask(t); } }
   }
   render();
