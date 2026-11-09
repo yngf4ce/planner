@@ -142,6 +142,21 @@ html[data-theme=light] input[type=date]::-webkit-calendar-picker-indicator,html[
 .emoji-pick button{height:42px;border-radius:11px;background:var(--surface);font-size:20px;border:1px solid var(--border)}
 .emoji-pick button.on{border-color:var(--accent);background:var(--accent-soft)}
 .seg button[disabled]{opacity:.45}
+/* «Неделя» */
+.carry-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:6px;padding:10px;font-size:13.5px;color:var(--text2);border-radius:12px}
+.carry-btn:active{background:var(--surface)}
+.carry-btn svg.i{width:16px;height:16px}
+.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.ws-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;border-radius:13px;background:var(--surface);box-shadow:var(--shadow);min-width:0}
+.ws-day:active{background:var(--surface2)}
+.ws-day.today{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ws-wd{font-size:11px;color:var(--muted);text-transform:uppercase}
+.ws-n{font-size:16px;font-weight:650}
+.ws-day.today .ws-n{color:var(--accent)}
+.ws-bar{width:6px;height:28px;border-radius:3px;background:var(--surface2);display:flex;align-items:flex-end;overflow:hidden;margin:2px 0}
+.ws-bar i{display:block;width:100%;background:var(--accent);border-radius:3px}
+.ws-day.all .ws-bar i{background:var(--done)}
+.ws-c{font-size:11px;color:var(--text2);font-variant-numeric:tabular-nums}
 /* номер недели */
 .wk{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:7px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:600;vertical-align:1px;white-space:nowrap}
 /* перетаскивание */
@@ -413,7 +428,7 @@ textarea.field{resize:vertical;min-height:84px;line-height:1.5}
 
 <script>
 'use strict';
-const APP_VERSION = '0.9.1';   // меняется при каждой публикации — видно внизу экрана «Ещё»
+const APP_VERSION = '0.10.0';   // меняется при каждой публикации — видно внизу экрана «Ещё»
 const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData !== undefined ? window.Telegram.WebApp : null;
 const $ = (s, r = document) => r.querySelector(s);
 const view = $('#view');
@@ -444,6 +459,7 @@ const P = {
   eyeOff:'<path d="M3 3l18 18"/><path d="M10.6 5.6A10 10 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.6 3.4M6.6 6.7C4 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.6 0 3-.4 4.2-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
   bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1.1 1.3 1.1 2.2h5c0-.9.5-1.7 1.1-2.2A6 6 0 0 0 12 3z"/>',
   grip:'<path d="M5 8h14M5 12h14M5 16h14"/>',
+  week:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M7 14.5h10"/>',
   more:'<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><circle cx="16.75" cy="16.75" r="3.25"/>'
 };
 const icon = n => `<svg class="i" viewBox="0 0 24 24">${P[n]}</svg>`;
@@ -485,7 +501,7 @@ const DB = {
   async open(){
     try {
       this.db = await new Promise((res, rej) => {
-        const r = indexedDB.open('tg-planner', 5);
+        const r = indexedDB.open('tg-planner', 6);
         r.onupgradeneeded = () => {
           const db = r.result;
           if (!db.objectStoreNames.contains('outbox')) db.createObjectStore('outbox', {keyPath:'key'});
@@ -494,13 +510,13 @@ const DB = {
           if (!db.objectStoreNames.contains('photos')) db.createObjectStore('photos', {keyPath:'id'});
           if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', {keyPath:'key'});
           if (!db.objectStoreNames.contains('goals')) db.createObjectStore('goals', {keyPath:'id'});
-          for (const st of ['rules','accounts','categories','txns','budgets','ideas']) if (!db.objectStoreNames.contains(st)) db.createObjectStore(st, {keyPath:'id'});
+          for (const st of ['rules','accounts','categories','txns','budgets','ideas','wplans']) if (!db.objectStoreNames.contains(st)) db.createObjectStore(st, {keyPath:'id'});
         };
         r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
       });
     } catch (e) {
       console.warn('IndexedDB недоступна, данные хранятся только в памяти', e);
-      this.mem = {tasks:new Map(), diary:new Map(), photos:new Map(), meta:new Map(), outbox:new Map(), goals:new Map(), rules:new Map(), accounts:new Map(), categories:new Map(), txns:new Map(), budgets:new Map(), ideas:new Map()};
+      this.mem = {tasks:new Map(), diary:new Map(), photos:new Map(), meta:new Map(), outbox:new Map(), goals:new Map(), rules:new Map(), accounts:new Map(), categories:new Map(), txns:new Map(), budgets:new Map(), ideas:new Map(), wplans:new Map()};
     }
   },
   key(store, v){ return store === 'diary' ? v.date : (store === 'meta' || store === 'outbox') ? v.key : v.id; },
@@ -519,7 +535,8 @@ const DB = {
 
 /* ---------- state ---------- */
 const S = {
-  tasks: [], goals: [], rules: [], accounts: [], categories: [], txns: [], budgets: [], ideas: [], diary: {},
+  tasks: [], goals: [], rules: [], accounts: [], categories: [], txns: [], budgets: [], ideas: [], wplans: [], diary: {},
+  weekStart: addDays(today(), -((new Date().getDay() + 6) % 7)),
   ideaFilter: 'all', ideaTag: '', ideaQuery: '',
   finTab: 'overview', finMonth: today().slice(0, 7), finFilter: {acc:'', cat:''}, monthSel: today().slice(0, 7), settings: {theme:'dark', suggestions:true, hidden:[], mainCurrency:'EUR', hideMoney:false},
   tab: 'day', date: today(), calYear: new Date().getFullYear(),
@@ -692,9 +709,9 @@ function applyTheme(){
 
 /* ---------- tabs ---------- */
 /* нижняя панель — максимум 5 пунктов, остальное в «Ещё» */
-const TABS = [['day','Сегодня','day'],['calendar','Календарь','calendar'],['month','Месяц','month'],['finance','Финансы','wallet'],['more','Ещё','more']];
+const TABS = [['day','Сегодня','day'],['calendar','Календарь','calendar'],['month','Месяц','month'],['week','Неделя','week'],['more','Ещё','more']];
 /* разделы внутри «Ещё»: [id, название, иконка, описание] */
-const MORE = [['ideas','Идеи','bulb','Мысли, заметки и планы на будущее'],['diary','Дневник','diary','Записи и настроение за день'],['stats','Статистика','stats','Выполнение задач по неделям, месяцам и годам']];
+const MORE = [['finance','Финансы','wallet','Балансы, операции, категории и бюджеты'],['ideas','Идеи','bulb','Мысли, заметки и планы на будущее'],['diary','Дневник','diary','Записи и настроение за день'],['stats','Статистика','stats','Выполнение задач по неделям, месяцам и годам']];
 const inMore = tab => MORE.some(m => m[0] === tab);
 function renderTabbar(){
   const cur = inMore(S.tab) ? 'more' : S.tab;
@@ -717,9 +734,9 @@ function renderMore(){
 }
 function render(){
   renderTabbar();
-  const titles = {day:'Locked<b>Life</b>', calendar:'Календарь', month:'Месяц', finance:'Финансы', ideas:'Идеи', stats:'Статистика', diary:'Дневник', more:'Разделы'};
+  const titles = {day:'Locked<b>Life</b>', calendar:'Календарь', month:'Месяц', week:'Неделя', finance:'Финансы', ideas:'Идеи', stats:'Статистика', diary:'Дневник', more:'Разделы'};
   $('#topTitle').innerHTML = titles[S.tab];
-  ({day:renderDay, calendar:renderCalendar, month:renderMonth, finance:renderFinance, ideas:renderIdeas, stats:renderStats, diary:renderDiary, more:renderMore})[S.tab]();
+  ({day:renderDay, calendar:renderCalendar, month:renderMonth, week:renderWeek, finance:renderFinance, ideas:renderIdeas, stats:renderStats, diary:renderDiary, more:renderMore})[S.tab]();
   updateBack();
 }
 function go(tab){ window.scrollTo(0, 0); S.tab = tab; render(); view.classList.remove('fade'); void view.offsetWidth; view.classList.add('fade'); }
@@ -802,7 +819,7 @@ function renderDay(){
     <div class="today-head">
       <div class="th-text">
         ${d === today() ? `<div class="greet">${esc(greeting())}</div>` : ''}
-        <div class="h1">${humanDate(d)}</div><div class="sub">${longDate(d)} <span class="wk">${isoWeek(d)}-я неделя</span></div>
+        <div class="h1">${humanDate(d)}</div><div class="sub">${longDate(d)}</div>
       </div>
       ${active.length ? ringSVG(pct) : ''}
     </div>
@@ -1191,8 +1208,8 @@ async function saveMonthForm(){
 const CURRENCIES = ['EUR', 'USD', 'UAH'];
 const CUR_SIGN = {EUR:'€', USD:'$', UAH:'₴'};
 /* коллекции: тип записи → имя массива в S и хранилища IndexedDB */
-const COLL = {goal:'goals', rule:'rules', account:'accounts', category:'categories', txn:'txns', budget:'budgets', idea:'ideas'};
-const FIN_KINDS = ['account','category','txn','budget','idea'];   // коллекции с общими save/remove (saveItem/removeItem)
+const COLL = {goal:'goals', rule:'rules', account:'accounts', category:'categories', txn:'txns', budget:'budgets', idea:'ideas', wplan:'wplans'};
+const FIN_KINDS = ['account','category','txn','budget','idea','wplan'];   // коллекции с общими save/remove (saveItem/removeItem)
 const FIN_COLORS = ['#80A7FF','#65B99A','#E6B968','#E07A6A','#A78BFA','#F28CB1','#5CC8D7','#929BAA'];
 const FIN_EMOJI = ['🛒','🍽️','☕','🚌','⛽','🚕','✈️','🏠','💡','📱','🎮','🎬','🛍️','👕','💊','🏋️','📚','🎁','🐾','💳','💼','💰','📈','🏷️','📦'];
 const DEF_CATS = [
@@ -1594,6 +1611,92 @@ function ideaCollect(){
   return {...rest, title:$('#ifTitle').value.trim(), body:$('#ifBody').value.trim(), tags};
 }
 
+/* ---------- WEEK ---------- */
+/* план недели: {id, week:'2026-W46', title, description, done, starred, order, movedFrom, createdAt, updatedAt} */
+const mondayOf = s => addDays(s, -wdIdx(parse(s)));
+function weekKey(mon){ const thu = parse(addDays(mon, 3)); return `${thu.getFullYear()}-W${pad(isoWeek(mon))}`; }
+function weekRange(mon){
+  const a = parse(mon), b = parse(addDays(mon, 6));
+  if (a.getFullYear() !== b.getFullYear()) return `${a.getDate()} ${MONTHS_GEN[a.getMonth()]} ${a.getFullYear()} – ${b.getDate()} ${MONTHS_GEN[b.getMonth()]} ${b.getFullYear()}`;
+  if (a.getMonth() !== b.getMonth()) return `${a.getDate()} ${MONTHS_GEN[a.getMonth()]} – ${b.getDate()} ${MONTHS_GEN[b.getMonth()]} ${b.getFullYear()}`;
+  return `${a.getDate()} – ${b.getDate()} ${MONTHS_GEN[b.getMonth()]} ${b.getFullYear()}`;
+}
+function weekTitle(mon){
+  const cur = mondayOf(today());
+  return mon === cur ? 'Эта неделя' : mon === addDays(cur, 7) ? 'Следующая неделя' : mon === addDays(cur, -7) ? 'Прошлая неделя' : `${isoWeek(mon)}-я неделя`;
+}
+function wplanRow(p){
+  const meta = [];
+  if (p.movedFrom) meta.push(`<span>перенесено с ${esc(String(Number(p.movedFrom.split('-W')[1])))}-й недели</span>`);
+  if (p.description) meta.push(`<span>${icon('note')}</span>`);
+  return `<div class="task ${p.done ? 'done' : 'pending'}${p.starred ? ' starred' : ''}" data-wplan="${p.id}">
+    <button class="check" data-wcheck="${p.id}" aria-label="Отметить">${p.done ? icon('check') : ''}</button>
+    <div class="task-body"><div class="task-title">${esc(p.title)}</div>${meta.length ? `<div class="task-meta">${meta.join('')}</div>` : ''}</div>
+    <button class="star${p.starred ? ' on' : ''}" data-wstar="${p.id}" aria-label="Важное">${icon('star')}</button>
+    ${DRAG_H}
+  </div>`;
+}
+function renderWeek(){
+  const mon = S.weekStart; const key = weekKey(mon); const cur = mondayOf(today());
+  const list = applyManual(S.wplans.filter(p => p.week === key)
+    .sort((a, b) => (a.done - b.done) || (b.starred - a.starred) || a.createdAt - b.createdAt), p => p.order);
+  const done = list.filter(p => p.done).length; const pct = list.length ? Math.round(done / list.length * 100) : 0;
+  const undone = list.filter(p => !p.done).length;
+  const days = [...Array(7)].map((_, i) => {
+    const d = addDays(mon, i); const all = allOn(d).filter(t => t.status !== 'postponed');
+    return {d, n:all.length, done:all.filter(t => t.status === 'done').length};
+  });
+  view.innerHTML = `
+    <div class="today-head">
+      <div class="th-text">
+        <div class="greet">${weekTitle(mon)}</div>
+        <div class="h1">Неделя</div>
+        <div class="sub">${weekRange(mon)} <span class="wk">${isoWeek(mon)}-я неделя</span></div>
+      </div>
+      ${list.length ? ringSVG(pct) : ''}
+    </div>
+    <div class="day-switch">
+      <button data-act="weekPrev">${icon('left')}Прошлая</button>
+      ${mon !== cur ? `<button class="to-today" data-act="weekCur">К текущей</button>` : ''}
+      <button data-act="weekNext">Следующая${icon('right')}</button>
+    </div>
+    ${list.length ? `<div class="progress"><div class="progress-bar"><i style="width:${pct}%"></i></div><span>${done} из ${list.length}</span></div>` : ''}
+    <form class="quick-add" id="weekQuick">
+      <input id="weekInput" placeholder="План на неделю…" autocomplete="off" maxlength="200" enterkeyhint="done">
+      <button type="button" class="add-btn" data-act="weekNew" aria-label="Подробнее">${icon('plus')}</button>
+    </form>
+    <div class="groups"><div class="task-list" data-sortable="wplans">${list.length ? list.map(wplanRow).join('') : '<div class="empty">Планов на эту неделю пока нет</div>'}</div></div>
+    <button class="btn ghost wide" style="margin-top:12px" data-act="weekNew">${icon('plus')} Новый план</button>
+    ${undone && mon <= cur ? `<button class="carry-btn" data-act="weekCarry">${icon('arrow')} Перенести невыполненные (${undone}) на следующую неделю</button>` : ''}
+    <div class="section-label">Задачи по дням</div>
+    <div class="week-strip">${days.map(({d, n, done}) => {
+      const dt = parse(d); const p = n ? Math.round(done / n * 100) : 0;
+      return `<button class="ws-day${d === today() ? ' today' : ''}${n && done === n ? ' all' : ''}" data-day="${d}">
+        <span class="ws-wd">${WD_SHORT[wdIdx(dt)]}</span><span class="ws-n">${dt.getDate()}</span>
+        <span class="ws-bar"><i style="height:${p}%"></i></span><span class="ws-c">${n ? `${done}/${n}` : '—'}</span></button>`;
+    }).join('')}</div>`;
+  $('#weekQuick').addEventListener('submit', async e => {
+    e.preventDefault(); const v = $('#weekInput').value.trim(); if (!v) return;
+    await saveItem('wplan', {id:uid(), week:key, title:v, description:'', done:false, starred:false, createdAt:Date.now()});
+    haptic('light'); renderWeek(); $('#weekInput').focus();
+  });
+}
+let wpf = null;
+function openWplanForm(p){
+  wpf = p ? {...p} : {id:uid(), isNew:true, week:weekKey(S.weekStart), title:'', description:'', done:false, starred:false, createdAt:Date.now()};
+  openSheet(`
+    <div class="sheet-head"><div class="h2">${wpf.isNew ? 'Новый план на неделю' : 'План на неделю'}</div>
+      <button class="star${wpf.starred ? ' on' : ''}" id="wpStar" data-act="wpStar" aria-label="Важное">${icon('star')}</button></div>
+    <input class="field title" id="wpTitle" placeholder="Что сделать на этой неделе?" maxlength="200" value="${esc(wpf.title)}" autocomplete="off">
+    <textarea class="field" id="wpDesc" placeholder="Описание, заметки…">${esc(wpf.description || '')}</textarea>
+    ${!wpf.isNew ? `<div class="actions">
+      <button class="btn ghost" data-act="wpNext">${icon('arrow')} На след. неделю</button>
+      <button class="btn ghost danger" data-act="wpDelete">Удалить</button></div>` : ''}
+    <button class="btn primary wide" data-act="wpSave">${wpf.isNew ? 'Добавить' : 'Сохранить'}</button>`, () => { wpf = null; });
+  if (wpf.isNew) setTimeout(() => $('#wpTitle') && $('#wpTitle').focus(), 280);
+}
+const nextWeekKey = key => { const [y, w] = key.split('-W').map(Number); const jan4 = new Date(y, 0, 4); const mon = addDays(ymd(jan4), -wdIdx(jan4) + (w - 1) * 7); return weekKey(addDays(mon, 7)); };
+
 /* ---------- STATS ---------- */
 function periodRange(){
   const now = parse(today()); const off = S.statsOffset; const p = S.statsPeriod;
@@ -1769,7 +1872,7 @@ function openSettings(){
 }
 async function exportData(){
   const photos = await DB.all('photos');
-  const data = {app:'tg-planner', version:2, exportedAt:new Date().toISOString(), settings:S.settings, tasks:S.tasks, goals:S.goals, rules:S.rules, accounts:S.accounts, categories:S.categories, txns:S.txns, budgets:S.budgets, ideas:S.ideas, diary:Object.values(S.diary), photos};
+  const data = {app:'tg-planner', version:2, exportedAt:new Date().toISOString(), settings:S.settings, tasks:S.tasks, goals:S.goals, rules:S.rules, accounts:S.accounts, categories:S.categories, txns:S.txns, budgets:S.budgets, ideas:S.ideas, wplans:S.wplans, diary:Object.values(S.diary), photos};
   const name = `planner-backup-${today()}.json`;
   const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
   try {
@@ -1788,8 +1891,8 @@ async function wipeAll(){
   for (const g of S.goals) await queue('goal', g.id, null, true);
   for (const r of S.rules) await queue('rule', r.id, null, true);
   for (const k of FIN_KINDS) for (const o of S[COLL[k]]) await queue(k, o.id, null, true);
-  for (const s of ['tasks','diary','photos','goals','rules','accounts','categories','txns','budgets','ideas']) await DB.clear(s);
-  S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = []; S.ideas = [];
+  for (const s of ['tasks','diary','photos','goals','rules','accounts','categories','txns','budgets','ideas','wplans']) await DB.clear(s);
+  S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = []; S.ideas = []; S.wplans = [];
   S.tasks = []; S.diary = {}; photoCache.clear();
 }
 async function importData(file){
@@ -1811,7 +1914,7 @@ async function importData(file){
 
 /* ---------- events ---------- */
 document.addEventListener('click', async e => {
-  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view],[data-calmode],[data-calsel],[data-calpick],[data-rcheck],[data-rule],[data-goal],[data-gcheck],[data-gplus],[data-rday],[data-rpreset],[data-fintab],[data-acc],[data-txn],[data-budget],[data-ftype],[data-fcat],[data-afcur],[data-afcolor],[data-catedit],[data-catnew],[data-cfemoji],[data-cfcolor],[data-setcur],[data-idea],[data-istatus],[data-ifilter],[data-itag],[data-ifst],[data-iaddtag]');
+  const el = e.target.closest('[data-act],[data-tab],[data-check],[data-star],[data-task],[data-sugg],[data-edsugg],[data-day],[data-plan],[data-postpone],[data-period],[data-mood],[data-entry],[data-settheme],[data-rmphoto],[data-view],[data-calmode],[data-calsel],[data-calpick],[data-rcheck],[data-rule],[data-goal],[data-gcheck],[data-gplus],[data-rday],[data-rpreset],[data-fintab],[data-acc],[data-txn],[data-budget],[data-ftype],[data-fcat],[data-afcur],[data-afcolor],[data-catedit],[data-catnew],[data-cfemoji],[data-cfcolor],[data-setcur],[data-idea],[data-istatus],[data-ifilter],[data-itag],[data-ifst],[data-iaddtag],[data-wplan],[data-wcheck],[data-wstar]');
   if (!el) return;
   if (longPressFired) { longPressFired = false; return; }
   const ds = el.dataset;
@@ -1841,6 +1944,9 @@ document.addEventListener('click', async e => {
   if (ds.cfemoji) { cf.emoji = ds.cfemoji; document.querySelectorAll('[data-cfemoji]').forEach(b => b.classList.toggle('on', b.dataset.cfemoji === cf.emoji)); return; }
   if (ds.cfcolor) { cf.color = ds.cfcolor; document.querySelectorAll('[data-cfcolor]').forEach(b => b.classList.toggle('on', b.dataset.cfcolor === cf.color)); return; }
   if (ds.setcur) { S.settings.mainCurrency = ds.setcur; await saveSettings(); openSettings(); render(); return; }
+  if (ds.wcheck) { e.stopPropagation(); const w = S.wplans.find(x => x.id === ds.wcheck); if (w) { w.done = !w.done; await saveItem('wplan', w); haptic(w.done ? 'success' : 'light'); renderWeek(); } return; }
+  if (ds.wstar) { e.stopPropagation(); const w = S.wplans.find(x => x.id === ds.wstar); if (w) { w.starred = !w.starred; await saveItem('wplan', w); haptic('light'); renderWeek(); } return; }
+  if (ds.wplan) { const w = S.wplans.find(x => x.id === ds.wplan); if (w) openWplanForm(w); return; }
   if (ds.istatus) { e.stopPropagation(); const i = S.ideas.find(x => x.id === ds.istatus); if (i) { const order = ['new','work','archive']; i.status = order[(order.indexOf(i.status) + 1) % 3]; await saveItem('idea', i); haptic('light'); renderIdeas(); toast(`Статус: ${IDEA_ST[i.status]}`); } return; }
   if (ds.idea) { const i = S.ideas.find(x => x.id === ds.idea); if (i) openIdeaForm(i); return; }
   if (ds.ifilter) { S.ideaFilter = ds.ifilter; renderIdeas(); return; }
@@ -1889,6 +1995,25 @@ document.addEventListener('click', async e => {
     case 'monPrev': case 'monNext': { const [y, m] = S.monthSel.split('-').map(Number); const n = new Date(y, m - 1 + (ds.act === 'monPrev' ? -1 : 1), 1); S.monthSel = `${n.getFullYear()}-${pad(n.getMonth() + 1)}`; renderMonth(); break; }
     case 'monCur': S.monthSel = today().slice(0, 7); renderMonth(); break;
     case 'dragNoop': break;
+    case 'weekPrev': S.weekStart = addDays(S.weekStart, -7); renderWeek(); break;
+    case 'weekNext': S.weekStart = addDays(S.weekStart, 7); renderWeek(); break;
+    case 'weekCur': S.weekStart = mondayOf(today()); renderWeek(); break;
+    case 'weekNew': { const v = $('#weekInput') ? $('#weekInput').value.trim() : ''; openWplanForm(null); if (v) { $('#wpTitle').value = v; $('#weekInput').value = ''; } break; }
+    case 'wpStar': wpf.starred = !wpf.starred; $('#wpStar').classList.toggle('on', wpf.starred); haptic('light'); break;
+    case 'wpSave': {
+      const title = $('#wpTitle').value.trim(); if (!title) { $('#wpTitle').focus(); toast('Введите план'); break; }
+      const {isNew, ...w} = wpf; Object.assign(w, {title, description:$('#wpDesc').value.trim()});
+      await saveItem('wplan', w); closeSheet(); haptic('light'); render(); break;
+    }
+    case 'wpNext': { const w = S.wplans.find(x => x.id === wpf.id); if (w) { w.movedFrom = w.week; w.week = nextWeekKey(w.week); delete w.order; await saveItem('wplan', w); closeSheet(); render(); toast('Перенесено на следующую неделю'); } break; }
+    case 'wpDelete': if (await confirmDlg('Удалить план?')) { const id = wpf.id; closeSheet(); await removeItem('wplan', id); render(); toast('План удалён'); } break;
+    case 'weekCarry': {
+      const key = weekKey(S.weekStart); const next = weekKey(addDays(S.weekStart, 7));
+      const list = S.wplans.filter(p => p.week === key && !p.done);
+      if (!list.length || !(await confirmDlg(`Перенести ${list.length} невыполн. на следующую неделю?`))) break;
+      for (const p of list) { p.movedFrom = key; p.week = next; delete p.order; await saveItem('wplan', p); }
+      S.weekStart = addDays(S.weekStart, 7); render(); toast('Перенесено'); break;
+    }
     case 'monAdd': openMonthForm('new'); break;
     case 'ideaNew': openIdeaForm(null); break;
     case 'ideaSave': { const i = ideaCollect(); if (!i.title) { $('#ifTitle').focus(); toast('Введите идею'); break; } await saveItem('idea', i); closeSheet(); haptic('light'); render(); toast('Идея сохранена'); break; }
@@ -2004,7 +2129,8 @@ async function endDrag(){
   const rows = [...list.querySelectorAll(':scope > .task')]; const kind = list.dataset.sortable;
   for (let i = 0; i < rows.length; i++) {
     const el = rows[i];
-    if (el.dataset.goal) { const g = S.goals.find(x => x.id === el.dataset.goal); if (g && g.order !== i) { g.order = i; await saveGoal(g); } }
+    if (el.dataset.wplan) { const w = S.wplans.find(x => x.id === el.dataset.wplan); if (w && w.order !== i) { w.order = i; await saveItem('wplan', w); } }
+    else if (el.dataset.goal) { const g = S.goals.find(x => x.id === el.dataset.goal); if (g && g.order !== i) { g.order = i; await saveGoal(g); } }
     else if (el.dataset.rule) {
       const r = S.rules.find(x => x.id === el.dataset.rule); const key = kind === 'mrules' ? 'morder' : 'order';  // у «Месяца» свой порядок повторов
       if (r && r[key] !== i) { r[key] = i; await saveRule(r); }
@@ -2069,8 +2195,8 @@ const Sync = {
     const m = await DB.get('meta', 'syncUser');
     if (m && m.value === this.userId) return;
     if (m && m.value !== this.userId) {           // на устройстве данные другого аккаунта — очищаем
-      for (const s of ['tasks','diary','photos','outbox','goals','rules','accounts','categories','txns','budgets','ideas']) await DB.clear(s);
-      await DB.del('meta', 'syncSeq'); S.tasks = []; S.diary = {}; S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = []; S.ideas = []; photoCache.clear();
+      for (const s of ['tasks','diary','photos','outbox','goals','rules','accounts','categories','txns','budgets','ideas','wplans']) await DB.clear(s);
+      await DB.del('meta', 'syncSeq'); S.tasks = []; S.diary = {}; S.goals = []; S.rules = []; S.accounts = []; S.categories = []; S.txns = []; S.budgets = []; S.ideas = []; S.wplans = []; photoCache.clear();
     } else {
       for (const t of S.tasks) await queue('task', t.id, {...t, updatedAt: t.updatedAt || t.createdAt || Date.now()});
       for (const d of Object.values(S.diary)) await queue('diary', d.date, {...d, updatedAt: d.updatedAt || Date.now()});
@@ -2177,7 +2303,7 @@ async function load(){
   S.tasks = await DB.all('tasks');
   S.goals = await DB.all('goals');
   S.rules = await DB.all('rules');
-  for (const k of ['accounts','categories','txns','budgets','ideas']) S[k] = await DB.all(k);
+  for (const k of ['accounts','categories','txns','budgets','ideas','wplans']) S[k] = await DB.all(k);
   S.diary = {}; (await DB.all('diary')).forEach(d => S.diary[d.date] = d);
   const st = await DB.get('meta', 'settings'); if (st) { S.settings = {...S.settings, ...st.value}; S.settingsUpdatedAt = st.updatedAt || 0; }
 }
@@ -2204,7 +2330,7 @@ async function load(){
   }
   // при смене даты в полночь — обновить «сегодня»
   let lastDay = today();
-  setInterval(() => { if (today() !== lastDay) { if (S.date === lastDay) S.date = today(); lastDay = today(); render(); } }, 60000);
+  setInterval(() => { if (today() !== lastDay) { if (S.date === lastDay) S.date = today(); if (S.weekStart === mondayOf(lastDay)) S.weekStart = mondayOf(today()); lastDay = today(); render(); } }, 60000);
 })();
 </script>
 </body>

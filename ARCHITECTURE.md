@@ -23,6 +23,7 @@
 | `txns` | `id` | операция: `type (expense/income/transfer), amount (центы), accountId, toAccountId, toAmount, categoryId, date, note, source` |
 | `budgets` | `id` (= id категории) | месячный лимит категории в основной валюте: `limit (центы)` |
 | `ideas` | `id` | идея: `title, body, tags[], status (new/work/archive), source (app/bot), transcript` |
+| `wplans` | `id` | план недели: `week (YYYY-Www, ISO), title, description, done, starred, order, movedFrom` |
 | `meta` | `key` | настройки, служебные метки синхронизации |
 | `outbox` | `key` | очередь изменений для сервера |
 
